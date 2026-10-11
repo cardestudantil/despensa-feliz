@@ -26,13 +26,13 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Despensa da Família — Controle de Despensa e Compras" },
+      { title: "Despensa Pacatito — Controle de Despensa e Compras" },
       {
         name: "description",
         content:
           "Controle simples e acessível da despensa de casa: veja o que tem, o que está acabando e monte a lista de compras automaticamente.",
       },
-      { property: "og:title", content: "Despensa da Família — Controle de Despensa e Compras" },
+      { property: "og:title", content: "Despensa Pacatito — Controle de Despensa e Compras" },
       {
         property: "og:description",
         content:
@@ -116,7 +116,7 @@ function PaginaDespensa() {
           <Package className="h-10 w-10 text-primary" aria-hidden="true" />
           <div>
             <h1 className="text-2xl font-bold leading-tight text-foreground sm:text-3xl">
-              Despensa da Família
+              Despensa Pacatito
             </h1>
             <p className="text-base text-muted-foreground">
               Controle o que tem em casa e o que precisa comprar
