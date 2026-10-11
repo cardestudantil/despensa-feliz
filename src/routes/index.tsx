@@ -86,7 +86,7 @@ function PaginaDespensa() {
   };
 
   const adicionarPrioridade = (nome: string) => {
-    const valor = nome.trim().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLocaleLowerCase("pt-BR").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const valor = nome.trim().toLocaleLowerCase("pt-BR").replace(/[^a-z0-9áéíóúãõâêôç]+/g, "-").replace(/^-|-$/g, "");
     if (!valor || prioridades.includes(valor)) return false;
     setPrioridades((atual) => [...atual, valor]);
     return true;
