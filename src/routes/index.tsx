@@ -423,7 +423,12 @@ function CartaoItem({
         </div>
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-undefined font-bold text-card-foreground">{item.nome}</h3>
+          <div className="min-w-0">
+            <h3 className="text-undefined font-bold text-card-foreground">{item.nome}</h3>
+            <span className={`mt-2 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${item.prioridade === "nenhuma" ? "bg-secondary text-secondary-foreground" : item.prioridade === "urgente" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}>
+              {item.prioridade === "nenhuma" ? "Sem prioridade" : `Prioridade: ${{ urgente: "Urgente", alta: "Alta", normal: "Normal", baixa: "Baixa" }[item.prioridade] || item.prioridade.replace(/-/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("pt-BR"))}`}
+            </span>
+          </div>
           <SeloStatus item={item} />
         </div>
       )}
