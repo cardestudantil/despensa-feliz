@@ -7,6 +7,9 @@ import {
   ShoppingCart,
   Package,
   ClipboardList,
+  Flag,
+  AlertTriangle,
+  Clock,
   Pencil,
   Check,
   X,
@@ -45,7 +48,7 @@ export const Route = createFileRoute("/")({
   component: PaginaDespensa,
 });
 
-type Aba = "despensa" | "compras";
+type Aba = "despensa" | "compras" | "prioridades";
 
 function PaginaDespensa() {
   const [itens, setItens] = useState<ItemDespensa[]>([]);
@@ -129,7 +132,7 @@ function PaginaDespensa() {
         className="sticky top-0 z-10 border-b border-border bg-background"
         aria-label="Seções do aplicativo"
       >
-        <div className="mx-auto grid max-w-3xl grid-cols-2 gap-2 px-4 py-3">
+        <div className="mx-auto grid max-w-3xl grid-cols-3 gap-2 px-4 py-3">
           <button
             type="button"
             onClick={() => setAba("despensa")}
@@ -164,6 +167,27 @@ function PaginaDespensa() {
               </span>
             )}
           </button>
+          <button
+            type="button"
+            onClick={() => setAba("prioridades")}
+            aria-pressed={aba === "prioridades"}
+            className={`relative flex min-h-12 items-center justify-center gap-2 rounded-lg text-undefined font-semibold transition-colors ${
+              aba === "prioridades"
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-secondary-foreground"
+            }`}
+          >
+            <Flag className="h-4 w-4" aria-hidden="true" />
+            Prioridades
+            {listaCompras.length > 0 && (
+              <span
+                className="ml-1 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-destructive px-1.5 text-xs font-bold text-destructive-foreground"
+                aria-label={`${listaCompras.length} itens prioritários`}
+              >
+                {listaCompras.length}
+              </span>
+            )}
+          </button>
         </div>
       </nav>
 
@@ -176,8 +200,10 @@ function PaginaDespensa() {
             onEditar={editarItem}
             onAdicionar={adicionarItem}
           />
-        ) : (
+        ) : aba === "compras" ? (
           <ListaCompras itens={listaCompras} />
+        ) : (
+          <AreaPrioridades itens={listaCompras} onAlterar={alterarQuantidade} />
         )}
       </main>
     </div>
@@ -664,6 +690,106 @@ function FormularioNovoItem({
           </p>
         )}
       </form>
+    </section>
+  );
+}
+
+function AreaPrioridades({
+  itens,
+  onAlterar,
+}: {
+  itens: ItemDespensa[];
+  onAlterar: (id: string, delta: number) => void;
+}) {
+  const urgentes = itens.filter((item) => item.quantidade === 0);
+  const altas = itens.filter((item) => item.quantidade > 0 && item.quantidade < item.minimo);
+  const atencao = itens.filter((item) => item.quantidade > 0 && item.quantidade === item.minimo);
+
+  const grupos = [
+    { titulo: "Comprar primeiro", descricao: "Acabou em casa", itens: urgentes, tipo: "urgente" as const, Icone: AlertTriangle },
+    { titulo: "Prioridade alta", descricao: "Abaixo do mínimo ideal", itens: altas, tipo: "alta" as const, Icone: Flag },
+    { titulo: "Repor em breve", descricao: "Chegou ao mínimo ideal", itens: atencao, tipo: "atencao" as const, Icone: Clock },
+  ];
+
+  const total = itens.length;
+
+  return (
+    <section aria-labelledby="prioridades-titulo" className="space-y-5">
+      <div>
+        <h2 id="prioridades-titulo" className="text-lg font-bold text-foreground">
+          Prioridades da despensa
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Veja o que precisa ser comprado primeiro. A ordem é calculada pela quantidade disponível em casa.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <div className="rounded-lg border border-border bg-card p-3">
+          <p className="text-xs text-muted-foreground">Urgentes</p>
+          <p className="mt-1 text-xl font-bold tabular-nums text-destructive">{urgentes.length}</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-3">
+          <p className="text-xs text-muted-foreground">Alta</p>
+          <p className="mt-1 text-xl font-bold tabular-nums text-foreground">{altas.length}</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-3">
+          <p className="text-xs text-muted-foreground">Em breve</p>
+          <p className="mt-1 text-xl font-bold tabular-nums text-foreground">{atencao.length}</p>
+        </div>
+      </div>
+
+      {total === 0 ? (
+        <div className="rounded-lg border border-border bg-card p-8 text-center">
+          <ClipboardList className="mx-auto h-10 w-10 text-muted-foreground" aria-hidden="true" />
+          <h3 className="mt-3 font-bold text-card-foreground">Nenhuma prioridade agora</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Seus produtos estão acima da quantidade mínima. Esta área será atualizada automaticamente conforme você usar a despensa.
+          </p>
+        </div>
+      ) : (
+        grupos.filter((grupo) => grupo.itens.length > 0).map(({ titulo, descricao, itens: doGrupo, tipo, Icone }) => (
+          <section key={tipo} aria-label={titulo} className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Icone className={`h-4 w-4 ${tipo === "urgente" ? "text-destructive" : "text-muted-foreground"}`} aria-hidden="true" />
+              <h3 className="font-semibold text-foreground">{titulo}</h3>
+              <span className="text-xs text-muted-foreground">({doGrupo.length})</span>
+            </div>
+            <p className="-mt-2 text-sm text-muted-foreground">{descricao}</p>
+            <ul className="space-y-2">
+              {doGrupo.map((item) => (
+                <li key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-card-foreground">{item.nome}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.categoria} · {item.quantidade} {rotuloUnidade(item.unidade)} em casa · mínimo {item.minimo} {rotuloUnidade(item.unidade)}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => onAlterar(item.id, -1)}
+                      disabled={item.quantidade === 0}
+                      aria-label={`Diminuir quantidade de ${item.nome}`}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-secondary-foreground disabled:opacity-40"
+                    >
+                      <Minus className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onAlterar(item.id, 1)}
+                      aria-label={`Aumentar quantidade de ${item.nome}`}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+                    >
+                      <Plus className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      )}
     </section>
   );
 }
