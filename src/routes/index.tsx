@@ -313,10 +313,16 @@ function CartaoItem({
 
   return (
     <li
-      className={`rounded-lg border p-4 shadow-sm ${
-        precisaComprar(item)
-          ? "border-destructive bg-card"
-          : "border-border bg-card"
+      className={`rounded-xl border-2 p-4 shadow-sm transition-colors ${
+        item.prioridade === "alta"
+          ? "border-red-500 bg-red-50 dark:bg-red-950/40"
+          : item.prioridade === "urgente"
+            ? "border-orange-500 bg-orange-50 dark:bg-orange-950/40"
+            : item.prioridade === "normal"
+              ? "border-blue-400 bg-blue-50 dark:bg-blue-950/30"
+              : item.prioridade === "baixa"
+                ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30"
+                : "border-border bg-card"
       }`}
     >
       {editando ? (
@@ -425,7 +431,7 @@ function CartaoItem({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">
             <h3 className="text-undefined font-bold text-card-foreground">{item.nome}</h3>
-            <span className={`mt-2 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${item.prioridade === "nenhuma" ? "bg-secondary text-secondary-foreground" : item.prioridade === "urgente" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}>
+            <span className={`mt-2 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${item.prioridade === "nenhuma" ? "bg-secondary text-secondary-foreground" : item.prioridade === "alta" ? "bg-red-600 text-white" : item.prioridade === "urgente" ? "bg-orange-600 text-white" : item.prioridade === "normal" ? "bg-blue-600 text-white" : item.prioridade === "baixa" ? "bg-emerald-600 text-white" : "bg-violet-600 text-white"}`}>
               {item.prioridade === "nenhuma" ? "Sem prioridade" : `Prioridade: ${{ urgente: "Urgente", alta: "Alta", normal: "Normal", baixa: "Baixa" }[item.prioridade] || item.prioridade.replace(/-/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("pt-BR"))}`}
             </span>
           </div>
