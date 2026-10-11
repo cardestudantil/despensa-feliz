@@ -186,11 +186,36 @@ function CartaoItem({
   item,
   onAlterar,
   onRemover,
+  onRenomear,
 }: {
   item: ItemDespensa;
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
+  onRenomear: (id: string, nome: string) => void;
 }) {
+  const [editando, setEditando] = useState(false);
+  const [nome, setNome] = useState(item.nome);
+  const [erro, setErro] = useState("");
+  const campoRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!editando) return;
+    setNome(item.nome);
+    setErro("");
+    campoRef.current?.focus();
+    campoRef.current?.select();
+  }, [editando, item.nome]);
+
+  const salvarNome = () => {
+    const nomeLimpo = nome.trim();
+    if (!nomeLimpo) {
+      setErro("Escreva o novo nome do produto.");
+      return;
+    }
+    onRenomear(item.id, nomeLimpo);
+    setEditando(false);
+  };
+
   return (
     <li
       className={`rounded-2xl border-2 p-4 shadow-sm ${
@@ -199,10 +224,45 @@ function CartaoItem({
           : "border-border bg-card"
       }`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-xl font-bold text-card-foreground">{item.nome}</h3>
-        <SeloStatus item={item} />
-      </div>
+      {editando ? (
+        <div>
+          <label
+            htmlFor={`editar-nome-${item.id}`}
+            className="mb-1 block text-lg font-semibold text-foreground"
+          >
+            Nome do produto
+          </label>
+          <input
+            id={`editar-nome-${item.id}`}
+            ref={campoRef}
+            type="text"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                salvarNome();
+              } else if (e.key === "Escape") {
+                setEditando(false);
+              }
+            }}
+            className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+          {erro && (
+            <p
+              className="mt-1 text-base font-semibold text-destructive"
+              role="alert"
+            >
+              {erro}
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-xl font-bold text-card-foreground">{item.nome}</h3>
+          <SeloStatus item={item} />
+        </div>
+      )}
 
       <p className="mt-2 text-base text-muted-foreground">
         Quantidade mínima: <strong className="text-foreground">{item.minimo}</strong>
@@ -235,15 +295,49 @@ function CartaoItem({
           <Plus className="h-8 w-8" aria-hidden="true" />
         </button>
 
-        <button
-          type="button"
-          onClick={() => onRemover(item.id)}
-          aria-label={`Remover ${item.nome} da despensa`}
-          className="ml-auto flex h-12 w-12 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-        >
-          <Trash2 className="h-6 w-6" aria-hidden="true" />
-        </button>
+        {!editando && (
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setEditando(true)}
+              aria-label={`Editar nome de ${item.nome}`}
+              className="flex h-12 w-12 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+            >
+              <Pencil className="h-6 w-6" aria-hidden="true" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onRemover(item.id)}
+              aria-label={`Remover ${item.nome} da despensa`}
+              className="flex h-12 w-12 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+            >
+              <Trash2 className="h-6 w-6" aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </div>
+
+      {editando && (
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={salvarNome}
+            className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-primary text-lg font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            <Check className="h-6 w-6" aria-hidden="true" />
+            Salvar nome
+          </button>
+          <button
+            type="button"
+            onClick={() => setEditando(false)}
+            className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-secondary text-lg font-bold text-secondary-foreground transition-colors hover:bg-accent"
+          >
+            <X className="h-6 w-6" aria-hidden="true" />
+            Cancelar
+          </button>
+        </div>
+      )}
     </li>
   );
 }
@@ -252,11 +346,13 @@ function Despensa({
   itens,
   onAlterar,
   onRemover,
+  onRenomear,
   onAdicionar,
 }: {
   itens: ItemDespensa[];
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
+  onRenomear: (id: string, nome: string) => void;
   onAdicionar: (nome: string, categoria: Categoria, minimo: number) => void;
 }) {
   return (
@@ -279,12 +375,18 @@ function Despensa({
                   item={item}
                   onAlterar={onAlterar}
                   onRemover={onRemover}
+                  onRenomear={onRenomear}
                 />
               ))}
             </ul>
           </section>
         );
       })}
+
+      <FormularioNovoItem onAdicionar={onAdicionar} />
+    </div>
+  );
+}
 
       <FormularioNovoItem onAdicionar={onAdicionar} />
     </div>
