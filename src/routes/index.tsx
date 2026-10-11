@@ -737,7 +737,8 @@ function AreaPrioridades({
 }) {
   const [novaPrioridade, setNovaPrioridade] = useState("");
   const [mensagemPrioridade, setMensagemPrioridade] = useState("");
-  const rotular = (prioridade: Prioridade) => ({ urgente: "Urgente", alta: "Alta", normal: "Normal", baixa: "Baixa" }[prioridade] || prioridade.replace(/-/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("pt-BR")));
+  const nomesPrioridades: Record<string, string> = { urgente: "Urgente", alta: "Alta", normal: "Normal", baixa: "Baixa" };
+  const rotular = (prioridade: Prioridade) => nomesPrioridades[prioridade] || prioridade.replace(/-/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("pt-BR"));
   const ordem = (prioridade: Prioridade) => prioridades.indexOf(prioridade);
   const ordenados = [...itens].sort((a, b) => ordem(a.prioridade) - ordem(b.prioridade) || a.nome.localeCompare(b.nome));
   const contagem = (prioridade: Prioridade) => itens.filter((item) => item.prioridade === prioridade).length;
