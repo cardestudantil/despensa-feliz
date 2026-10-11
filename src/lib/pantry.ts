@@ -2,7 +2,22 @@ export type Categoria = "Alimentos" | "Limpeza" | "Higiene";
 
 export type Unidade = "unidade" | "kg";
 
-export type Prioridade = "urgente" | "alta" | "normal" | "baixa";
+export type Prioridade = string;
+
+export const PRIORIDADES_INICIAIS: Prioridade[] = ["urgente", "alta", "normal", "baixa"];
+const PRIORIDADES_STORAGE_KEY = "despensa-prioridades-v1";
+
+export function carregarPrioridades(): Prioridade[] {
+  try {
+    const salvas = JSON.parse(window.localStorage.getItem(PRIORIDADES_STORAGE_KEY) || "null");
+    if (Array.isArray(salvas) && salvas.length > 0 && salvas.every((p) => typeof p === "string")) return salvas;
+  } catch { /* usa as prioridades padrão */ }
+  return PRIORIDADES_INICIAIS;
+}
+
+export function salvarPrioridades(prioridades: Prioridade[]) {
+  try { window.localStorage.setItem(PRIORIDADES_STORAGE_KEY, JSON.stringify(prioridades)); } catch { /* armazenamento indisponível */ }
+}
 
 export interface ItemDespensa {
   id: string;
