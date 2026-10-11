@@ -388,11 +388,6 @@ function Despensa({
   );
 }
 
-      <FormularioNovoItem onAdicionar={onAdicionar} />
-    </div>
-  );
-}
-
 function FormularioNovoItem({
   onAdicionar,
 }: {
