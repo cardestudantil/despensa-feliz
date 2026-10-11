@@ -86,7 +86,7 @@ function PaginaDespensa() {
   };
 
   const adicionarPrioridade = (nome: string) => {
-    const valor = nome.trim().toLocaleLowerCase("pt-BR").replace(/[^\\p{L}\\p{N}]+/gu, "-").replace(/^-|-$/g, "");
+    const valor = nome.trim().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLocaleLowerCase("pt-BR").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     if (!valor || prioridades.includes(valor)) return false;
     setPrioridades((atual) => [...atual, valor]);
     return true;
@@ -737,7 +737,7 @@ function AreaPrioridades({
 }) {
   const [novaPrioridade, setNovaPrioridade] = useState("");
   const [mensagemPrioridade, setMensagemPrioridade] = useState("");
-  const rotular = (prioridade: Prioridade) => ({ urgente: "Urgente", alta: "Alta", normal: "Normal", baixa: "Baixa" }[prioridade] || prioridade.replace(/-/g, " ").replace(/^\\p{L}/u, (letra) => letra.toLocaleUpperCase("pt-BR")));
+  const rotular = (prioridade: Prioridade) => ({ urgente: "Urgente", alta: "Alta", normal: "Normal", baixa: "Baixa" }[prioridade] || prioridade.replace(/-/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("pt-BR")));
   const ordem = (prioridade: Prioridade) => prioridades.indexOf(prioridade);
   const ordenados = [...itens].sort((a, b) => ordem(a.prioridade) - ordem(b.prioridade) || a.nome.localeCompare(b.nome));
   const contagem = (prioridade: Prioridade) => itens.filter((item) => item.prioridade === prioridade).length;
