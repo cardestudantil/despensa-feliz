@@ -8,8 +8,6 @@ import {
   Package,
   ClipboardList,
   Flag,
-  AlertTriangle,
-  Clock,
   Pencil,
   Check,
   X,
