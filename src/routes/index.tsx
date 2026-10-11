@@ -113,7 +113,7 @@ function PaginaDespensa() {
     <div className="min-h-dvh bg-background">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-5">
-          <Package className="h-10 w-10 text-primary" aria-hidden="true" />
+          <Package className="h-5 w-5 text-primary" aria-hidden="true" />
           <div>
             <h1 className="text-undefined font-bold leading-tight text-foreground sm:text-undefined">
               Despensa Pacatito
@@ -134,26 +134,26 @@ function PaginaDespensa() {
             type="button"
             onClick={() => setAba("despensa")}
             aria-pressed={aba === "despensa"}
-            className={`flex min-h-14 items-center justify-center gap-2 rounded-xl text-undefined font-semibold transition-colors ${
+            className={`flex min-h-12 items-center justify-center gap-2 rounded-lg text-undefined font-semibold transition-colors ${
               aba === "despensa"
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-secondary-foreground"
             }`}
           >
-            <Package className="h-6 w-6" aria-hidden="true" />
+            <Package className="h-5 w-5" aria-hidden="true" />
             Despensa
           </button>
           <button
             type="button"
             onClick={() => setAba("compras")}
             aria-pressed={aba === "compras"}
-            className={`relative flex min-h-14 items-center justify-center gap-2 rounded-xl text-undefined font-semibold transition-colors ${
+            className={`relative flex min-h-12 items-center justify-center gap-2 rounded-lg text-undefined font-semibold transition-colors ${
               aba === "compras"
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-secondary-foreground"
             }`}
           >
-            <ShoppingCart className="h-6 w-6" aria-hidden="true" />
+            <ShoppingCart className="h-5 w-5" aria-hidden="true" />
             Compras
             {listaCompras.length > 0 && (
               <span
@@ -259,7 +259,7 @@ function CartaoItem({
 
   return (
     <li
-      className={`rounded-xl border p-4 shadow-sm ${
+      className={`rounded-lg border p-4 shadow-sm ${
         precisaComprar(item)
           ? "border-destructive bg-card"
           : "border-border bg-card"
@@ -281,7 +281,7 @@ function CartaoItem({
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               onKeyDown={aoTeclar}
-              className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
@@ -298,9 +298,9 @@ function CartaoItem({
                 onClick={() => ajustarMinimo(-1)}
                 disabled={(parseInt(minimo, 10) || 0) <= 0}
                 aria-label={`Diminuir quantidade mínima de ${item.nome}`}
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground transition-colors hover:bg-accent disabled:opacity-40"
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-secondary text-secondary-foreground transition-colors hover:bg-accent disabled:opacity-40"
               >
-                <Minus className="h-7 w-7" aria-hidden="true" />
+                <Minus className="h-5 w-5" aria-hidden="true" />
               </button>
               <input
                 id={`editar-minimo-${item.id}`}
@@ -310,15 +310,15 @@ function CartaoItem({
                 value={minimo}
                 onChange={(e) => setMinimo(e.target.value)}
                 onKeyDown={aoTeclar}
-                className="min-h-14 w-24 rounded-xl border-2 border-input bg-background px-3 text-center text-undefined font-bold tabular-nums text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="min-h-12 w-24 rounded-lg border border-input bg-background px-3 text-center text-undefined font-bold tabular-nums text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <button
                 type="button"
                 onClick={() => ajustarMinimo(1)}
                 aria-label={`Aumentar quantidade mínima de ${item.nome}`}
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
               >
-                <Plus className="h-7 w-7" aria-hidden="true" />
+                <Plus className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
             <p className="mt-1 text-undefined text-muted-foreground">
@@ -345,7 +345,7 @@ function CartaoItem({
                   type="button"
                   onClick={() => setUnidade(u.valor)}
                   aria-pressed={unidade === u.valor}
-                  className={`flex min-h-14 items-center justify-center rounded-xl text-undefined font-semibold transition-colors ${
+                  className={`flex min-h-12 items-center justify-center rounded-lg text-undefined font-semibold transition-colors ${
                     unidade === u.valor
                       ? "bg-primary text-primary-foreground"
                       : "bg-secondary text-secondary-foreground"
@@ -389,9 +389,9 @@ function CartaoItem({
           onClick={() => onAlterar(item.id, -1)}
           disabled={item.quantidade === 0}
           aria-label={`Diminuir quantidade de ${item.nome}`}
-          className="flex h-16 w-16 items-center justify-center rounded-xl bg-secondary text-secondary-foreground transition-colors hover:bg-accent disabled:opacity-40"
+          className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary text-secondary-foreground transition-colors hover:bg-accent disabled:opacity-40"
         >
-          <Minus className="h-8 w-8" aria-hidden="true" />
+          <Minus className="h-5 w-5" aria-hidden="true" />
         </button>
 
         <div className="min-w-20 text-center" aria-live="polite">
@@ -409,9 +409,9 @@ function CartaoItem({
           type="button"
           onClick={() => onAlterar(item.id, 1)}
           aria-label={`Aumentar quantidade de ${item.nome}`}
-          className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+          className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
         >
-          <Plus className="h-8 w-8" aria-hidden="true" />
+          <Plus className="h-5 w-5" aria-hidden="true" />
         </button>
 
         {!editando && (
@@ -420,18 +420,18 @@ function CartaoItem({
               type="button"
               onClick={() => setEditando(true)}
               aria-label={`Editar ${item.nome}: nome e quantidade mínima`}
-              className="flex h-12 w-12 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+              className="flex h-12 w-12 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
             >
-              <Pencil className="h-6 w-6" aria-hidden="true" />
+              <Pencil className="h-5 w-5" aria-hidden="true" />
             </button>
 
             <button
               type="button"
               onClick={() => onRemover(item.id)}
               aria-label={`Remover ${item.nome} da despensa`}
-              className="flex h-12 w-12 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+              className="flex h-12 w-12 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
             >
-              <Trash2 className="h-6 w-6" aria-hidden="true" />
+              <Trash2 className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
         )}
@@ -442,17 +442,17 @@ function CartaoItem({
           <button
             type="button"
             onClick={salvarEdicao}
-            className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-primary text-undefined font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary text-undefined font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            <Check className="h-6 w-6" aria-hidden="true" />
+            <Check className="h-5 w-5" aria-hidden="true" />
             Salvar
           </button>
           <button
             type="button"
             onClick={() => setEditando(false)}
-            className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-secondary text-undefined font-bold text-secondary-foreground transition-colors hover:bg-accent"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-lg bg-secondary text-undefined font-bold text-secondary-foreground transition-colors hover:bg-accent"
           >
-            <X className="h-6 w-6" aria-hidden="true" />
+            <X className="h-5 w-5" aria-hidden="true" />
             Cancelar
           </button>
         </div>
@@ -545,13 +545,13 @@ function FormularioNovoItem({
   return (
     <section
       aria-labelledby="novo-item-titulo"
-      className="rounded-xl border-dashed border-border bg-card p-5"
+      className="rounded-lg border-dashed border-border bg-card p-5"
     >
       <h2
         id="novo-item-titulo"
         className="flex items-center gap-2 text-undefined font-bold text-card-foreground"
       >
-        <Plus className="h-7 w-7 text-primary" aria-hidden="true" />
+        <Plus className="h-5 w-5 text-primary" aria-hidden="true" />
         Adicionar novo produto
       </h2>
 
@@ -569,7 +569,7 @@ function FormularioNovoItem({
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             placeholder="Ex: Arroz"
-            className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-undefined text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 
@@ -584,7 +584,7 @@ function FormularioNovoItem({
             id="nova-categoria"
             value={categoria}
             onChange={(e) => setCategoria(e.target.value as Categoria)}
-            className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             {CATEGORIAS.map((c) => (
               <option key={c} value={c}>
@@ -608,7 +608,7 @@ function FormularioNovoItem({
             inputMode="numeric"
             value={minimo}
             onChange={(e) => setMinimo(e.target.value)}
-            className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <p className="mt-1 text-undefined text-muted-foreground">
             Quando a quantidade em casa chegar nesse valor, o produto entra na
@@ -634,7 +634,7 @@ function FormularioNovoItem({
                 type="button"
                 onClick={() => setUnidade(u.valor)}
                 aria-pressed={unidade === u.valor}
-                className={`flex min-h-14 items-center justify-center rounded-xl text-undefined font-semibold transition-colors ${
+                className={`flex min-h-12 items-center justify-center rounded-lg text-undefined font-semibold transition-colors ${
                   unidade === u.valor
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-secondary-foreground"
@@ -652,9 +652,9 @@ function FormularioNovoItem({
 
         <button
           type="submit"
-          className="flex min-h-16 w-full items-center justify-center gap-2 rounded-xl bg-primary text-undefined font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-undefined font-bold text-primary-foreground transition-colors hover:bg-primary/90"
         >
-          <Plus className="h-7 w-7" aria-hidden="true" />
+          <Plus className="h-5 w-5" aria-hidden="true" />
           Adicionar produto
         </button>
 
@@ -671,9 +671,9 @@ function FormularioNovoItem({
 function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
   if (itens.length === 0) {
     return (
-      <div className="rounded-xl border-border bg-card p-8 text-center">
+      <div className="rounded-lg border-border bg-card p-8 text-center">
         <ClipboardList
-          className="mx-auto h-16 w-16 text-muted-foreground"
+          className="mx-auto h-12 w-12 text-muted-foreground"
           aria-hidden="true"
         />
         <h2 className="mt-4 text-undefined font-bold text-card-foreground">
@@ -704,7 +704,7 @@ function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
         {itens.map((item) => (
           <li
             key={item.id}
-            className="flex items-center justify-between gap-3 rounded-xl border-destructive bg-card p-4"
+            className="flex items-center justify-between gap-3 rounded-lg border-destructive bg-card p-4"
           >
             <div>
               <h3 className="text-undefined font-bold text-card-foreground">
@@ -717,7 +717,7 @@ function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
               </p>
             </div>
             <ShoppingCart
-              className="h-8 w-8 shrink-0 text-destructive"
+              className="h-5 w-5 shrink-0 text-destructive"
               aria-hidden="true"
             />
           </li>
