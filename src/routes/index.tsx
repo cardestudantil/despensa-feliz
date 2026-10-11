@@ -157,6 +157,7 @@ function PaginaDespensa() {
             itens={itens}
             onAlterar={alterarQuantidade}
             onRemover={removerItem}
+            onRenomear={renomearItem}
             onAdicionar={adicionarItem}
           />
         ) : (
