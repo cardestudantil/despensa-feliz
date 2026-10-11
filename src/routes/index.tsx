@@ -23,6 +23,7 @@ import {
   UNIDADES,
   type Categoria,
   type ItemDespensa,
+  type Prioridade,
   type Unidade,
 } from "@/lib/pantry";
 
@@ -74,6 +75,10 @@ function PaginaDespensa() {
     );
   };
 
+  const definirPrioridade = (id: string, prioridade: Prioridade) => {
+    setItens((atual) => atual.map((item) => item.id === id ? { ...item, prioridade } : item));
+  };
+
   const removerItem = (id: string) => {
     setItens((atual) => atual.filter((item) => item.id !== id));
   };
@@ -106,6 +111,7 @@ function PaginaDespensa() {
         quantidade: 0,
         minimo,
         unidade,
+        prioridade: "normal",
       },
     ]);
   };
@@ -203,7 +209,7 @@ function PaginaDespensa() {
         ) : aba === "compras" ? (
           <ListaCompras itens={listaCompras} />
         ) : (
-          <AreaPrioridades itens={listaCompras} onAlterar={alterarQuantidade} />
+          <AreaPrioridades itens={itens} onAlterar={alterarQuantidade} onDefinirPrioridade={definirPrioridade} />
         )}
       </main>
     </div>
@@ -697,98 +703,105 @@ function FormularioNovoItem({
 function AreaPrioridades({
   itens,
   onAlterar,
+  onDefinirPrioridade,
 }: {
   itens: ItemDespensa[];
   onAlterar: (id: string, delta: number) => void;
+  onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
 }) {
-  const urgentes = itens.filter((item) => item.quantidade === 0);
-  const altas = itens.filter((item) => item.quantidade > 0 && item.quantidade < item.minimo);
-  const atencao = itens.filter((item) => item.quantidade > 0 && item.quantidade === item.minimo);
-
-  const grupos = [
-    { titulo: "Comprar primeiro", descricao: "Acabou em casa", itens: urgentes, tipo: "urgente" as const, Icone: AlertTriangle },
-    { titulo: "Prioridade alta", descricao: "Abaixo do mínimo ideal", itens: altas, tipo: "alta" as const, Icone: Flag },
-    { titulo: "Repor em breve", descricao: "Chegou ao mínimo ideal", itens: atencao, tipo: "atencao" as const, Icone: Clock },
-  ];
-
-  const total = itens.length;
+  const ordem: Record<Prioridade, number> = { urgente: 0, alta: 1, normal: 2, baixa: 3 };
+  const rotulos: Record<Prioridade, string> = {
+    urgente: "Urgente",
+    alta: "Alta",
+    normal: "Normal",
+    baixa: "Baixa",
+  };
+  const ordenados = [...itens].sort((a, b) => ordem[a.prioridade] - ordem[b.prioridade] || a.nome.localeCompare(b.nome));
+  const contagem = (prioridade: Prioridade) => itens.filter((item) => item.prioridade === prioridade).length;
 
   return (
     <section aria-labelledby="prioridades-titulo" className="space-y-5">
       <div>
         <h2 id="prioridades-titulo" className="text-lg font-bold text-foreground">
-          Prioridades da despensa
+          Editar prioridades
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Veja o que precisa ser comprado primeiro. A ordem é calculada pela quantidade disponível em casa.
+          Escolha a prioridade de cada produto. Suas escolhas ficam salvas automaticamente.
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-lg border border-border bg-card p-3">
-          <p className="text-xs text-muted-foreground">Urgentes</p>
-          <p className="mt-1 text-xl font-bold tabular-nums text-destructive">{urgentes.length}</p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-3">
-          <p className="text-xs text-muted-foreground">Alta</p>
-          <p className="mt-1 text-xl font-bold tabular-nums text-foreground">{altas.length}</p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-3">
-          <p className="text-xs text-muted-foreground">Em breve</p>
-          <p className="mt-1 text-xl font-bold tabular-nums text-foreground">{atencao.length}</p>
-        </div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {(["urgente", "alta", "normal", "baixa"] as Prioridade[]).map((prioridade) => (
+          <div key={prioridade} className="rounded-lg border border-border bg-card p-3">
+            <p className="text-xs text-muted-foreground">{rotulos[prioridade]}</p>
+            <p className={`mt-1 text-xl font-bold tabular-nums ${prioridade === "urgente" ? "text-destructive" : "text-foreground"}`}>
+              {contagem(prioridade)}
+            </p>
+          </div>
+        ))}
       </div>
 
-      {total === 0 ? (
+      {ordenados.length === 0 ? (
         <div className="rounded-lg border border-border bg-card p-8 text-center">
           <ClipboardList className="mx-auto h-10 w-10 text-muted-foreground" aria-hidden="true" />
-          <h3 className="mt-3 font-bold text-card-foreground">Nenhuma prioridade agora</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Seus produtos estão acima da quantidade mínima. Esta área será atualizada automaticamente conforme você usar a despensa.
-          </p>
+          <h3 className="mt-3 font-bold text-card-foreground">Sua despensa está vazia</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Adicione produtos na aba Despensa para definir suas prioridades.</p>
         </div>
       ) : (
-        grupos.filter((grupo) => grupo.itens.length > 0).map(({ titulo, descricao, itens: doGrupo, tipo, Icone }) => (
-          <section key={tipo} aria-label={titulo} className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Icone className={`h-4 w-4 ${tipo === "urgente" ? "text-destructive" : "text-muted-foreground"}`} aria-hidden="true" />
-              <h3 className="font-semibold text-foreground">{titulo}</h3>
-              <span className="text-xs text-muted-foreground">({doGrupo.length})</span>
-            </div>
-            <p className="-mt-2 text-sm text-muted-foreground">{descricao}</p>
-            <ul className="space-y-2">
-              {doGrupo.map((item) => (
-                <li key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-card-foreground">{item.nome}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {item.categoria} · {item.quantidade} {rotuloUnidade(item.unidade)} em casa · mínimo {item.minimo} {rotuloUnidade(item.unidade)}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => onAlterar(item.id, -1)}
-                      disabled={item.quantidade === 0}
-                      aria-label={`Diminuir quantidade de ${item.nome}`}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-secondary-foreground disabled:opacity-40"
-                    >
-                      <Minus className="h-4 w-4" aria-hidden="true" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onAlterar(item.id, 1)}
-                      aria-label={`Aumentar quantidade de ${item.nome}`}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"
-                    >
-                      <Plus className="h-4 w-4" aria-hidden="true" />
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))
+        <ul className="space-y-3">
+          {ordenados.map((item) => (
+            <li key={item.id} className="rounded-lg border border-border bg-card p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-card-foreground">{item.nome}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {item.categoria} · {item.quantidade} {rotuloUnidade(item.unidade)} em casa
+                    {precisaComprar(item) ? " · precisa comprar" : ""}
+                  </p>
+                </div>
+                <label className="min-w-32">
+                  <span className="mb-1 block text-xs font-semibold text-muted-foreground">Prioridade</span>
+                  <select
+                    value={item.prioridade}
+                    onChange={(e) => onDefinirPrioridade(item.id, e.target.value as Prioridade)}
+                    aria-label={`Prioridade de ${item.nome}`}
+                    className="min-h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    <option value="urgente">🔴 Urgente</option>
+                    <option value="alta">🟠 Alta</option>
+                    <option value="normal">🟡 Normal</option>
+                    <option value="baixa">🟢 Baixa</option>
+                  </select>
+                </label>
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+                <span className="text-xs text-muted-foreground">
+                  Mínimo: {item.minimo} {rotuloUnidade(item.unidade)}
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onAlterar(item.id, -1)}
+                    disabled={item.quantidade === 0}
+                    aria-label={`Diminuir quantidade de ${item.nome}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-secondary-foreground disabled:opacity-40"
+                  >
+                    <Minus className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                  <span className="min-w-6 text-center text-sm font-semibold tabular-nums">{item.quantidade}</span>
+                  <button
+                    type="button"
+                    onClick={() => onAlterar(item.id, 1)}
+                    aria-label={`Aumentar quantidade de ${item.nome}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+                  >
+                    <Plus className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );
