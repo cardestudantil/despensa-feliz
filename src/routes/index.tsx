@@ -115,10 +115,10 @@ function PaginaDespensa() {
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-5">
           <Package className="h-10 w-10 text-primary" aria-hidden="true" />
           <div>
-            <h1 className="text-2xl font-bold leading-tight text-foreground sm:text-3xl">
+            <h1 className="text-undefined font-bold leading-tight text-foreground sm:text-undefined">
               Despensa Pacatito
             </h1>
-            <p className="text-base text-muted-foreground">
+            <p className="text-undefined text-muted-foreground">
               Controle o que tem em casa e o que precisa comprar
             </p>
           </div>
@@ -134,7 +134,7 @@ function PaginaDespensa() {
             type="button"
             onClick={() => setAba("despensa")}
             aria-pressed={aba === "despensa"}
-            className={`flex min-h-14 items-center justify-center gap-2 rounded-xl text-lg font-semibold transition-colors ${
+            className={`flex min-h-14 items-center justify-center gap-2 rounded-xl text-undefined font-semibold transition-colors ${
               aba === "despensa"
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-secondary-foreground"
@@ -147,7 +147,7 @@ function PaginaDespensa() {
             type="button"
             onClick={() => setAba("compras")}
             aria-pressed={aba === "compras"}
-            className={`relative flex min-h-14 items-center justify-center gap-2 rounded-xl text-lg font-semibold transition-colors ${
+            className={`relative flex min-h-14 items-center justify-center gap-2 rounded-xl text-undefined font-semibold transition-colors ${
               aba === "compras"
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-secondary-foreground"
@@ -157,7 +157,7 @@ function PaginaDespensa() {
             Compras
             {listaCompras.length > 0 && (
               <span
-                className="ml-1 inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-destructive px-2 text-base font-bold text-destructive-foreground"
+                className="ml-1 inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-destructive px-2 text-undefined font-bold text-destructive-foreground"
                 aria-label={`${listaCompras.length} itens para comprar`}
               >
                 {listaCompras.length}
@@ -187,13 +187,13 @@ function PaginaDespensa() {
 function SeloStatus({ item }: { item: ItemDespensa }) {
   if (precisaComprar(item)) {
     return (
-      <span className="inline-flex items-center rounded-lg bg-destructive px-3 py-1.5 text-base font-bold text-destructive-foreground">
+      <span className="inline-flex items-center rounded-lg bg-destructive px-3 py-1.5 text-undefined font-bold text-destructive-foreground">
         🚨 COMPRAR
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center rounded-lg bg-[oklch(0.55_0.15_150)] px-3 py-1.5 text-base font-bold text-white">
+    <span className="inline-flex items-center rounded-lg bg-[oklch(0.55_0.15_150)] px-3 py-1.5 text-undefined font-bold text-white">
       ✅ OK
     </span>
   );
@@ -259,7 +259,7 @@ function CartaoItem({
 
   return (
     <li
-      className={`rounded-2xl border-2 p-4 shadow-sm ${
+      className={`rounded-xl border p-4 shadow-sm ${
         precisaComprar(item)
           ? "border-destructive bg-card"
           : "border-border bg-card"
@@ -270,7 +270,7 @@ function CartaoItem({
           <div>
             <label
               htmlFor={`editar-nome-${item.id}`}
-              className="mb-1 block text-lg font-semibold text-foreground"
+              className="mb-1 block text-undefined font-semibold text-foreground"
             >
               Nome do produto
             </label>
@@ -281,14 +281,14 @@ function CartaoItem({
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               onKeyDown={aoTeclar}
-              className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
           <div>
             <label
               htmlFor={`editar-minimo-${item.id}`}
-              className="mb-1 block text-lg font-semibold text-foreground"
+              className="mb-1 block text-undefined font-semibold text-foreground"
             >
               Quantidade mínima ideal
             </label>
@@ -310,7 +310,7 @@ function CartaoItem({
                 value={minimo}
                 onChange={(e) => setMinimo(e.target.value)}
                 onKeyDown={aoTeclar}
-                className="min-h-14 w-24 rounded-xl border-2 border-input bg-background px-3 text-center text-2xl font-bold tabular-nums text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="min-h-14 w-24 rounded-xl border-2 border-input bg-background px-3 text-center text-undefined font-bold tabular-nums text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <button
                 type="button"
@@ -321,7 +321,7 @@ function CartaoItem({
                 <Plus className="h-7 w-7" aria-hidden="true" />
               </button>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-undefined text-muted-foreground">
               Quando a quantidade em casa chegar nesse valor, o produto entra na
               lista de compras.
             </p>
@@ -330,7 +330,7 @@ function CartaoItem({
           <div>
             <span
               id={`editar-unidade-${item.id}`}
-              className="mb-1 block text-lg font-semibold text-foreground"
+              className="mb-1 block text-undefined font-semibold text-foreground"
             >
               Unidade
             </span>
@@ -345,7 +345,7 @@ function CartaoItem({
                   type="button"
                   onClick={() => setUnidade(u.valor)}
                   aria-pressed={unidade === u.valor}
-                  className={`flex min-h-14 items-center justify-center rounded-xl text-lg font-semibold transition-colors ${
+                  className={`flex min-h-14 items-center justify-center rounded-xl text-undefined font-semibold transition-colors ${
                     unidade === u.valor
                       ? "bg-primary text-primary-foreground"
                       : "bg-secondary text-secondary-foreground"
@@ -355,27 +355,27 @@ function CartaoItem({
                 </button>
               ))}
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-undefined text-muted-foreground">
               Escolha se o produto é contado por unidade ou pesado em
               quilogramas (kg).
             </p>
           </div>
 
           {erro && (
-            <p className="text-base font-semibold text-destructive" role="alert">
+            <p className="text-undefined font-semibold text-destructive" role="alert">
               {erro}
             </p>
           )}
         </div>
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-xl font-bold text-card-foreground">{item.nome}</h3>
+          <h3 className="text-undefined font-bold text-card-foreground">{item.nome}</h3>
           <SeloStatus item={item} />
         </div>
       )}
 
       {!editando && (
-        <p className="mt-2 text-base text-muted-foreground">
+        <p className="mt-2 text-undefined text-muted-foreground">
           Quantidade mínima:{" "}
           <strong className="text-foreground">
             {item.minimo} {rotuloUnidade(item.unidade)}
@@ -395,14 +395,14 @@ function CartaoItem({
         </button>
 
         <div className="min-w-20 text-center" aria-live="polite">
-          <span className="text-4xl font-bold tabular-nums text-foreground">
+          <span className="text-undefined font-bold tabular-nums text-foreground">
             {item.quantidade}
           </span>
-          <span className="text-lg font-semibold text-muted-foreground">
+          <span className="text-undefined font-semibold text-muted-foreground">
             {" "}
             {rotuloUnidade(item.unidade)}
           </span>
-          <span className="block text-sm text-muted-foreground">em casa</span>
+          <span className="block text-undefined text-muted-foreground">em casa</span>
         </div>
 
         <button
@@ -442,7 +442,7 @@ function CartaoItem({
           <button
             type="button"
             onClick={salvarEdicao}
-            className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-primary text-lg font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+            className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-primary text-undefined font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <Check className="h-6 w-6" aria-hidden="true" />
             Salvar
@@ -450,7 +450,7 @@ function CartaoItem({
           <button
             type="button"
             onClick={() => setEditando(false)}
-            className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-secondary text-lg font-bold text-secondary-foreground transition-colors hover:bg-accent"
+            className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-secondary text-undefined font-bold text-secondary-foreground transition-colors hover:bg-accent"
           >
             <X className="h-6 w-6" aria-hidden="true" />
             Cancelar
@@ -488,7 +488,7 @@ function Despensa({
           <section key={categoria} aria-labelledby={`cat-${categoria}`}>
             <h2
               id={`cat-${categoria}`}
-              className="mb-3 border-b-2 border-border pb-2 text-2xl font-bold text-foreground"
+              className="mb-3 border-b-2 border-border pb-2 text-undefined font-bold text-foreground"
             >
               {categoria}
             </h2>
@@ -545,11 +545,11 @@ function FormularioNovoItem({
   return (
     <section
       aria-labelledby="novo-item-titulo"
-      className="rounded-2xl border-2 border-dashed border-border bg-card p-5"
+      className="rounded-xl border-dashed border-border bg-card p-5"
     >
       <h2
         id="novo-item-titulo"
-        className="flex items-center gap-2 text-2xl font-bold text-card-foreground"
+        className="flex items-center gap-2 text-undefined font-bold text-card-foreground"
       >
         <Plus className="h-7 w-7 text-primary" aria-hidden="true" />
         Adicionar novo produto
@@ -559,7 +559,7 @@ function FormularioNovoItem({
         <div>
           <label
             htmlFor="novo-nome"
-            className="mb-1 block text-lg font-semibold text-foreground"
+            className="mb-1 block text-undefined font-semibold text-foreground"
           >
             Nome do produto
           </label>
@@ -569,14 +569,14 @@ function FormularioNovoItem({
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             placeholder="Ex: Arroz"
-            className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-undefined text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 
         <div>
           <label
             htmlFor="nova-categoria"
-            className="mb-1 block text-lg font-semibold text-foreground"
+            className="mb-1 block text-undefined font-semibold text-foreground"
           >
             Categoria
           </label>
@@ -584,7 +584,7 @@ function FormularioNovoItem({
             id="nova-categoria"
             value={categoria}
             onChange={(e) => setCategoria(e.target.value as Categoria)}
-            className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             {CATEGORIAS.map((c) => (
               <option key={c} value={c}>
@@ -597,7 +597,7 @@ function FormularioNovoItem({
         <div>
           <label
             htmlFor="novo-minimo"
-            className="mb-1 block text-lg font-semibold text-foreground"
+            className="mb-1 block text-undefined font-semibold text-foreground"
           >
             Quantidade mínima ideal
           </label>
@@ -608,9 +608,9 @@ function FormularioNovoItem({
             inputMode="numeric"
             value={minimo}
             onChange={(e) => setMinimo(e.target.value)}
-            className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-undefined text-muted-foreground">
             Quando a quantidade em casa chegar nesse valor, o produto entra na
             lista de compras.
           </p>
@@ -619,7 +619,7 @@ function FormularioNovoItem({
         <div>
           <span
             id="nova-unidade"
-            className="mb-1 block text-lg font-semibold text-foreground"
+            className="mb-1 block text-undefined font-semibold text-foreground"
           >
             Unidade
           </span>
@@ -634,7 +634,7 @@ function FormularioNovoItem({
                 type="button"
                 onClick={() => setUnidade(u.valor)}
                 aria-pressed={unidade === u.valor}
-                className={`flex min-h-14 items-center justify-center rounded-xl text-lg font-semibold transition-colors ${
+                className={`flex min-h-14 items-center justify-center rounded-xl text-undefined font-semibold transition-colors ${
                   unidade === u.valor
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-secondary-foreground"
@@ -644,7 +644,7 @@ function FormularioNovoItem({
               </button>
             ))}
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-undefined text-muted-foreground">
             Escolha se o produto é contado por unidade ou pesado em quilogramas
             (kg).
           </p>
@@ -652,14 +652,14 @@ function FormularioNovoItem({
 
         <button
           type="submit"
-          className="flex min-h-16 w-full items-center justify-center gap-2 rounded-xl bg-primary text-xl font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+          className="flex min-h-16 w-full items-center justify-center gap-2 rounded-xl bg-primary text-undefined font-bold text-primary-foreground transition-colors hover:bg-primary/90"
         >
           <Plus className="h-7 w-7" aria-hidden="true" />
           Adicionar produto
         </button>
 
         {mensagem && (
-          <p className="text-center text-lg font-semibold text-foreground" role="status">
+          <p className="text-center text-undefined font-semibold text-foreground" role="status">
             {mensagem}
           </p>
         )}
@@ -671,15 +671,15 @@ function FormularioNovoItem({
 function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
   if (itens.length === 0) {
     return (
-      <div className="rounded-2xl border-2 border-border bg-card p-8 text-center">
+      <div className="rounded-xl border-border bg-card p-8 text-center">
         <ClipboardList
           className="mx-auto h-16 w-16 text-muted-foreground"
           aria-hidden="true"
         />
-        <h2 className="mt-4 text-2xl font-bold text-card-foreground">
+        <h2 className="mt-4 text-undefined font-bold text-card-foreground">
           Tudo certo por aqui! 🎉
         </h2>
-        <p className="mt-2 text-lg text-muted-foreground">
+        <p className="mt-2 text-undefined text-muted-foreground">
           Nenhum produto está acabando. Quando algo chegar na quantidade
           mínima, ele aparece aqui automaticamente.
         </p>
@@ -691,11 +691,11 @@ function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
     <section aria-labelledby="lista-compras-titulo">
       <h2
         id="lista-compras-titulo"
-        className="mb-1 text-2xl font-bold text-foreground"
+        className="mb-1 text-undefined font-bold text-foreground"
       >
         Lista de compras
       </h2>
-      <p className="mb-4 text-lg text-muted-foreground">
+      <p className="mb-4 text-undefined text-muted-foreground">
         {itens.length === 1
           ? "1 produto para comprar"
           : `${itens.length} produtos para comprar`}
@@ -704,13 +704,13 @@ function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
         {itens.map((item) => (
           <li
             key={item.id}
-            className="flex items-center justify-between gap-3 rounded-2xl border-2 border-destructive bg-card p-4"
+            className="flex items-center justify-between gap-3 rounded-xl border-destructive bg-card p-4"
           >
             <div>
-              <h3 className="text-xl font-bold text-card-foreground">
+              <h3 className="text-undefined font-bold text-card-foreground">
                 {item.nome}
               </h3>
-              <p className="text-base text-muted-foreground">
+              <p className="text-undefined text-muted-foreground">
                 {item.categoria} · em casa: {item.quantidade}{" "}
                 {rotuloUnidade(item.unidade)} · mínimo: {item.minimo}{" "}
                 {rotuloUnidade(item.unidade)}
