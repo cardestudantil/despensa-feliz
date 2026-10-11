@@ -121,6 +121,7 @@ function PaginaDespensa() {
     categoria: Categoria,
     minimo: number,
     unidade: Unidade,
+    prioridade: Prioridade,
   ) => {
     setItens((atual) => [
       ...atual,
@@ -131,7 +132,7 @@ function PaginaDespensa() {
         quantidade: 0,
         minimo,
         unidade,
-        prioridade: "normal",
+        prioridade,
       },
     ]);
   };
@@ -225,6 +226,7 @@ function PaginaDespensa() {
             onRemover={removerItem}
             onEditar={editarItem}
             onAdicionar={adicionarItem}
+            prioridades={prioridades}
           />
         ) : aba === "compras" ? (
           <ListaCompras itens={listaCompras} />
@@ -519,6 +521,7 @@ function Despensa({
   onRemover,
   onEditar,
   onAdicionar,
+  prioridades,
 }: {
   itens: ItemDespensa[];
   onAlterar: (id: string, delta: number) => void;
@@ -529,7 +532,9 @@ function Despensa({
     categoria: Categoria,
     minimo: number,
     unidade: Unidade,
+    prioridade: Prioridade,
   ) => void;
+  prioridades: Prioridade[];
 }) {
   return (
     <div className="space-y-8">
@@ -559,25 +564,30 @@ function Despensa({
         );
       })}
 
-      <FormularioNovoItem onAdicionar={onAdicionar} />
+      <FormularioNovoItem onAdicionar={onAdicionar} prioridades={prioridades} />
     </div>
   );
 }
 
 function FormularioNovoItem({
   onAdicionar,
+  prioridades,
 }: {
   onAdicionar: (
     nome: string,
     categoria: Categoria,
     minimo: number,
     unidade: Unidade,
+    prioridade: Prioridade,
   ) => void;
+  prioridades: Prioridade[];
 }) {
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState<Categoria>("Alimentos");
   const [minimo, setMinimo] = useState("1");
   const [unidade, setUnidade] = useState<Unidade>("unidade");
+  const [temPrioridade, setTemPrioridade] = useState(false);
+  const [prioridadeNova, setPrioridadeNova] = useState<Prioridade>("normal");
   const [mensagem, setMensagem] = useState("");
 
   const enviar = (e: React.FormEvent) => {
@@ -588,7 +598,7 @@ function FormularioNovoItem({
       setMensagem("Escreva o nome do produto.");
       return;
     }
-    onAdicionar(nomeLimpo, categoria, minimoNum, unidade);
+    onAdicionar(nomeLimpo, categoria, minimoNum, unidade, temPrioridade ? prioridadeNova : "nenhuma");
     setNome("");
     setMinimo("1");
     setMensagem(`"${nomeLimpo}" foi adicionado à despensa!`);
@@ -702,6 +712,21 @@ function FormularioNovoItem({
           </p>
         </div>
 
+        <div className="rounded-lg border border-border p-4">
+          <label className="flex min-h-10 cursor-pointer items-center gap-3 font-semibold text-foreground">
+            <input type="checkbox" checked={temPrioridade} onChange={(e) => setTemPrioridade(e.target.checked)} className="h-5 w-5 accent-primary" />
+            Este produto é prioridade
+          </label>
+          {temPrioridade && (
+            <div className="mt-3">
+              <label htmlFor="nova-prioridade-produto" className="mb-1 block text-undefined font-semibold text-foreground">Qual é a prioridade?</label>
+              <select id="nova-prioridade-produto" value={prioridadeNova} onChange={(e) => setPrioridadeNova(e.target.value)} className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+                {prioridades.map((p) => <option key={p} value={p}>{({ urgente: "Urgente", alta: "Alta", normal: "Normal", baixa: "Baixa" } as Record<string, string>)[p] || p.replace(/-/g, " ")}</option>)}
+              </select>
+            </div>
+          )}
+        </div>
+
         <button
           type="submit"
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-undefined font-bold text-primary-foreground transition-colors hover:bg-primary/90"
@@ -744,6 +769,7 @@ function AreaPrioridades({
   const ordem = (prioridade: Prioridade) => prioridades.indexOf(prioridade);
   const ordenados = [...itens].sort((a, b) => ordem(a.prioridade) - ordem(b.prioridade) || a.nome.localeCompare(b.nome));
   const contagem = (prioridade: Prioridade) => itens.filter((item) => item.prioridade === prioridade).length;
+  const semPrioridade = itens.filter((item) => item.prioridade === "nenhuma").length;
   const criarPrioridade = (e: React.FormEvent) => {
     e.preventDefault();
     if (!novaPrioridade.trim()) { setMensagemPrioridade("Digite o nome da prioridade."); return; }
@@ -763,6 +789,7 @@ function AreaPrioridades({
       </div>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="rounded-lg border border-border bg-card p-3"><p className="text-xs text-muted-foreground">Sem prioridade</p><p className="mt-1 text-xl font-bold tabular-nums text-foreground">{semPrioridade}</p></div>
         {prioridades.map((prioridade) => (
           <div key={prioridade} className="rounded-lg border border-border bg-card p-3">
             <p className="text-xs text-muted-foreground">{rotular(prioridade)}</p>
@@ -812,6 +839,7 @@ function AreaPrioridades({
                     aria-label={`Prioridade de ${item.nome}`}
                     className="min-h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   >
+                    <option value="nenhuma">Sem prioridade</option>
                     {prioridades.map((prioridade) => <option key={prioridade} value={prioridade}>{rotular(prioridade)}</option>)}
                   </select>
                 </label>
