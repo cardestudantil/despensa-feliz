@@ -1,6 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { Minus, Plus, Trash2, ShoppingCart, Package, ClipboardList } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Minus,
+  Plus,
+  Trash2,
+  ShoppingCart,
+  Package,
+  ClipboardList,
+  Pencil,
+  Check,
+  X,
+} from "lucide-react";
 import {
   CATEGORIAS,
   carregarItens,
@@ -60,6 +70,12 @@ function PaginaDespensa() {
 
   const removerItem = (id: string) => {
     setItens((atual) => atual.filter((item) => item.id !== id));
+  };
+
+  const renomearItem = (id: string, nome: string) => {
+    setItens((atual) =>
+      atual.map((item) => (item.id === id ? { ...item, nome } : item)),
+    );
   };
 
   const adicionarItem = (nome: string, categoria: Categoria, minimo: number) => {
