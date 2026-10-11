@@ -1,4 +1,4 @@
-# Despensa Feliz
+# Despensa Pacatito
 
 Crie um aplicativo em português de "Controle de Despensa e Compras" focado em idosos e seus familiares. O design deve ser limpo, com fontes grandes, botões fáceis de clicar e alta acessibilidade.
 
