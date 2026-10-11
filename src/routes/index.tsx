@@ -72,9 +72,11 @@ function PaginaDespensa() {
     setItens((atual) => atual.filter((item) => item.id !== id));
   };
 
-  const renomearItem = (id: string, nome: string) => {
+  const editarItem = (id: string, nome: string, minimo: number) => {
     setItens((atual) =>
-      atual.map((item) => (item.id === id ? { ...item, nome } : item)),
+      atual.map((item) =>
+        item.id === id ? { ...item, nome, minimo } : item,
+      ),
     );
   };
 
@@ -157,7 +159,7 @@ function PaginaDespensa() {
             itens={itens}
             onAlterar={alterarQuantidade}
             onRemover={removerItem}
-            onRenomear={renomearItem}
+            onEditar={editarItem}
             onAdicionar={adicionarItem}
           />
         ) : (
@@ -187,35 +189,57 @@ function CartaoItem({
   item,
   onAlterar,
   onRemover,
-  onRenomear,
+  onEditar,
 }: {
   item: ItemDespensa;
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onRenomear: (id: string, nome: string) => void;
+  onEditar: (id: string, nome: string, minimo: number) => void;
 }) {
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState(item.nome);
+  const [minimo, setMinimo] = useState(String(item.minimo));
   const [erro, setErro] = useState("");
   const campoRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!editando) return;
     setNome(item.nome);
+    setMinimo(String(item.minimo));
     setErro("");
     campoRef.current?.focus();
     campoRef.current?.select();
-  }, [editando, item.nome]);
+  }, [editando, item.nome, item.minimo]);
 
-  const salvarNome = () => {
+  const ajustarMinimo = (delta: number) => {
+    setMinimo((atual) =>
+      String(Math.max(0, (parseInt(atual, 10) || 0) + delta)),
+    );
+  };
+
+  const aoTeclar = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      salvarEdicao();
+    } else if (e.key === "Escape") {
+      setEditando(false);
+    }
+  };
+
+  function salvarEdicao() {
     const nomeLimpo = nome.trim();
+    const minimoNum = parseInt(minimo, 10);
     if (!nomeLimpo) {
       setErro("Escreva o novo nome do produto.");
       return;
     }
-    onRenomear(item.id, nomeLimpo);
+    if (minimo.trim() === "" || Number.isNaN(minimoNum)) {
+      setErro("Informe a quantidade mínima ideal.");
+      return;
+    }
+    onEditar(item.id, nomeLimpo, Math.max(0, minimoNum));
     setEditando(false);
-  };
+  }
 
   return (
     <li
@@ -226,34 +250,69 @@ function CartaoItem({
       }`}
     >
       {editando ? (
-        <div>
-          <label
-            htmlFor={`editar-nome-${item.id}`}
-            className="mb-1 block text-lg font-semibold text-foreground"
-          >
-            Nome do produto
-          </label>
-          <input
-            id={`editar-nome-${item.id}`}
-            ref={campoRef}
-            type="text"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                salvarNome();
-              } else if (e.key === "Escape") {
-                setEditando(false);
-              }
-            }}
-            className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-          {erro && (
-            <p
-              className="mt-1 text-base font-semibold text-destructive"
-              role="alert"
+        <div className="space-y-4">
+          <div>
+            <label
+              htmlFor={`editar-nome-${item.id}`}
+              className="mb-1 block text-lg font-semibold text-foreground"
             >
+              Nome do produto
+            </label>
+            <input
+              id={`editar-nome-${item.id}`}
+              ref={campoRef}
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              onKeyDown={aoTeclar}
+              className="min-h-14 w-full rounded-xl border-2 border-input bg-background px-4 text-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor={`editar-minimo-${item.id}`}
+              className="mb-1 block text-lg font-semibold text-foreground"
+            >
+              Quantidade mínima ideal
+            </label>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => ajustarMinimo(-1)}
+                disabled={(parseInt(minimo, 10) || 0) <= 0}
+                aria-label={`Diminuir quantidade mínima de ${item.nome}`}
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground transition-colors hover:bg-accent disabled:opacity-40"
+              >
+                <Minus className="h-7 w-7" aria-hidden="true" />
+              </button>
+              <input
+                id={`editar-minimo-${item.id}`}
+                type="number"
+                min={0}
+                inputMode="numeric"
+                value={minimo}
+                onChange={(e) => setMinimo(e.target.value)}
+                onKeyDown={aoTeclar}
+                className="min-h-14 w-24 rounded-xl border-2 border-input bg-background px-3 text-center text-2xl font-bold tabular-nums text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <button
+                type="button"
+                onClick={() => ajustarMinimo(1)}
+                aria-label={`Aumentar quantidade mínima de ${item.nome}`}
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <Plus className="h-7 w-7" aria-hidden="true" />
+              </button>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Quando a quantidade em casa chegar nesse valor, o produto entra na
+              lista de compras.
+            </p>
+          </div>
+
+          {erro && (
+            <p className="text-base font-semibold text-destructive" role="alert">
               {erro}
             </p>
           )}
@@ -265,9 +324,12 @@ function CartaoItem({
         </div>
       )}
 
-      <p className="mt-2 text-base text-muted-foreground">
-        Quantidade mínima: <strong className="text-foreground">{item.minimo}</strong>
-      </p>
+      {!editando && (
+        <p className="mt-2 text-base text-muted-foreground">
+          Quantidade mínima:{" "}
+          <strong className="text-foreground">{item.minimo}</strong>
+        </p>
+      )}
 
       <div className="mt-3 flex items-center gap-3">
         <button
@@ -301,7 +363,7 @@ function CartaoItem({
             <button
               type="button"
               onClick={() => setEditando(true)}
-              aria-label={`Editar nome de ${item.nome}`}
+              aria-label={`Editar ${item.nome}: nome e quantidade mínima`}
               className="flex h-12 w-12 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
             >
               <Pencil className="h-6 w-6" aria-hidden="true" />
@@ -323,11 +385,11 @@ function CartaoItem({
         <div className="mt-3 grid grid-cols-2 gap-3">
           <button
             type="button"
-            onClick={salvarNome}
+            onClick={salvarEdicao}
             className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-primary text-lg font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <Check className="h-6 w-6" aria-hidden="true" />
-            Salvar nome
+            Salvar
           </button>
           <button
             type="button"
@@ -347,13 +409,13 @@ function Despensa({
   itens,
   onAlterar,
   onRemover,
-  onRenomear,
+  onEditar,
   onAdicionar,
 }: {
   itens: ItemDespensa[];
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onRenomear: (id: string, nome: string) => void;
+  onEditar: (id: string, nome: string, minimo: number) => void;
   onAdicionar: (nome: string, categoria: Categoria, minimo: number) => void;
 }) {
   return (
@@ -376,7 +438,7 @@ function Despensa({
                   item={item}
                   onAlterar={onAlterar}
                   onRemover={onRemover}
-                  onRenomear={onRenomear}
+                  onEditar={onEditar}
                 />
               ))}
             </ul>
