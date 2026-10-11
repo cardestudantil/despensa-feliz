@@ -15,9 +15,12 @@ import {
   CATEGORIAS,
   carregarItens,
   precisaComprar,
+  rotuloUnidade,
   salvarItens,
+  UNIDADES,
   type Categoria,
   type ItemDespensa,
+  type Unidade,
 } from "@/lib/pantry";
 
 export const Route = createFileRoute("/")({
@@ -72,15 +75,25 @@ function PaginaDespensa() {
     setItens((atual) => atual.filter((item) => item.id !== id));
   };
 
-  const editarItem = (id: string, nome: string, minimo: number) => {
+  const editarItem = (
+    id: string,
+    nome: string,
+    minimo: number,
+    unidade: Unidade,
+  ) => {
     setItens((atual) =>
       atual.map((item) =>
-        item.id === id ? { ...item, nome, minimo } : item,
+        item.id === id ? { ...item, nome, minimo, unidade } : item,
       ),
     );
   };
 
-  const adicionarItem = (nome: string, categoria: Categoria, minimo: number) => {
+  const adicionarItem = (
+    nome: string,
+    categoria: Categoria,
+    minimo: number,
+    unidade: Unidade,
+  ) => {
     setItens((atual) => [
       ...atual,
       {
@@ -89,6 +102,7 @@ function PaginaDespensa() {
         categoria,
         quantidade: 0,
         minimo,
+        unidade,
       },
     ]);
   };
@@ -194,11 +208,12 @@ function CartaoItem({
   item: ItemDespensa;
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onEditar: (id: string, nome: string, minimo: number) => void;
+  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade) => void;
 }) {
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState(item.nome);
   const [minimo, setMinimo] = useState(String(item.minimo));
+  const [unidade, setUnidade] = useState<Unidade>(item.unidade);
   const [erro, setErro] = useState("");
   const campoRef = useRef<HTMLInputElement>(null);
 
@@ -206,10 +221,11 @@ function CartaoItem({
     if (!editando) return;
     setNome(item.nome);
     setMinimo(String(item.minimo));
+    setUnidade(item.unidade);
     setErro("");
     campoRef.current?.focus();
     campoRef.current?.select();
-  }, [editando, item.nome, item.minimo]);
+  }, [editando, item.nome, item.minimo, item.unidade]);
 
   const ajustarMinimo = (delta: number) => {
     setMinimo((atual) =>
@@ -237,7 +253,7 @@ function CartaoItem({
       setErro("Informe a quantidade mínima ideal.");
       return;
     }
-    onEditar(item.id, nomeLimpo, Math.max(0, minimoNum));
+    onEditar(item.id, nomeLimpo, Math.max(0, minimoNum), unidade);
     setEditando(false);
   }
 
@@ -311,6 +327,40 @@ function CartaoItem({
             </p>
           </div>
 
+          <div>
+            <span
+              id={`editar-unidade-${item.id}`}
+              className="mb-1 block text-lg font-semibold text-foreground"
+            >
+              Unidade
+            </span>
+            <div
+              role="group"
+              aria-labelledby={`editar-unidade-${item.id}`}
+              className="grid grid-cols-2 gap-3"
+            >
+              {UNIDADES.map((u) => (
+                <button
+                  key={u.valor}
+                  type="button"
+                  onClick={() => setUnidade(u.valor)}
+                  aria-pressed={unidade === u.valor}
+                  className={`flex min-h-14 items-center justify-center rounded-xl text-lg font-semibold transition-colors ${
+                    unidade === u.valor
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-secondary-foreground"
+                  }`}
+                >
+                  {u.rotulo}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Escolha se o produto é contado por unidade ou pesado em
+              quilogramas (kg).
+            </p>
+          </div>
+
           {erro && (
             <p className="text-base font-semibold text-destructive" role="alert">
               {erro}
@@ -327,7 +377,9 @@ function CartaoItem({
       {!editando && (
         <p className="mt-2 text-base text-muted-foreground">
           Quantidade mínima:{" "}
-          <strong className="text-foreground">{item.minimo}</strong>
+          <strong className="text-foreground">
+            {item.minimo} {rotuloUnidade(item.unidade)}
+          </strong>
         </p>
       )}
 
@@ -345,6 +397,10 @@ function CartaoItem({
         <div className="min-w-20 text-center" aria-live="polite">
           <span className="text-4xl font-bold tabular-nums text-foreground">
             {item.quantidade}
+          </span>
+          <span className="text-lg font-semibold text-muted-foreground">
+            {" "}
+            {rotuloUnidade(item.unidade)}
           </span>
           <span className="block text-sm text-muted-foreground">em casa</span>
         </div>
@@ -415,8 +471,13 @@ function Despensa({
   itens: ItemDespensa[];
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onEditar: (id: string, nome: string, minimo: number) => void;
-  onAdicionar: (nome: string, categoria: Categoria, minimo: number) => void;
+  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade) => void;
+  onAdicionar: (
+    nome: string,
+    categoria: Categoria,
+    minimo: number,
+    unidade: Unidade,
+  ) => void;
 }) {
   return (
     <div className="space-y-8">
@@ -454,11 +515,17 @@ function Despensa({
 function FormularioNovoItem({
   onAdicionar,
 }: {
-  onAdicionar: (nome: string, categoria: Categoria, minimo: number) => void;
+  onAdicionar: (
+    nome: string,
+    categoria: Categoria,
+    minimo: number,
+    unidade: Unidade,
+  ) => void;
 }) {
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState<Categoria>("Alimentos");
   const [minimo, setMinimo] = useState("1");
+  const [unidade, setUnidade] = useState<Unidade>("unidade");
   const [mensagem, setMensagem] = useState("");
 
   const enviar = (e: React.FormEvent) => {
@@ -469,7 +536,7 @@ function FormularioNovoItem({
       setMensagem("Escreva o nome do produto.");
       return;
     }
-    onAdicionar(nomeLimpo, categoria, minimoNum);
+    onAdicionar(nomeLimpo, categoria, minimoNum, unidade);
     setNome("");
     setMinimo("1");
     setMensagem(`"${nomeLimpo}" foi adicionado à despensa!`);
@@ -549,6 +616,40 @@ function FormularioNovoItem({
           </p>
         </div>
 
+        <div>
+          <span
+            id="nova-unidade"
+            className="mb-1 block text-lg font-semibold text-foreground"
+          >
+            Unidade
+          </span>
+          <div
+            role="group"
+            aria-labelledby="nova-unidade"
+            className="grid grid-cols-2 gap-3"
+          >
+            {UNIDADES.map((u) => (
+              <button
+                key={u.valor}
+                type="button"
+                onClick={() => setUnidade(u.valor)}
+                aria-pressed={unidade === u.valor}
+                className={`flex min-h-14 items-center justify-center rounded-xl text-lg font-semibold transition-colors ${
+                  unidade === u.valor
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground"
+                }`}
+              >
+                {u.rotulo}
+              </button>
+            ))}
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Escolha se o produto é contado por unidade ou pesado em quilogramas
+            (kg).
+          </p>
+        </div>
+
         <button
           type="submit"
           className="flex min-h-16 w-full items-center justify-center gap-2 rounded-xl bg-primary text-xl font-bold text-primary-foreground transition-colors hover:bg-primary/90"
@@ -610,8 +711,9 @@ function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
                 {item.nome}
               </h3>
               <p className="text-base text-muted-foreground">
-                {item.categoria} · em casa: {item.quantidade} · mínimo:{" "}
-                {item.minimo}
+                {item.categoria} · em casa: {item.quantidade}{" "}
+                {rotuloUnidade(item.unidade)} · mínimo: {item.minimo}{" "}
+                {rotuloUnidade(item.unidade)}
               </p>
             </div>
             <ShoppingCart
