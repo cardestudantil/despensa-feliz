@@ -409,13 +409,13 @@ function Despensa({
   itens,
   onAlterar,
   onRemover,
-  onRenomear,
+  onEditar,
   onAdicionar,
 }: {
   itens: ItemDespensa[];
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onRenomear: (id: string, nome: string) => void;
+  onEditar: (id: string, nome: string, minimo: number) => void;
   onAdicionar: (nome: string, categoria: Categoria, minimo: number) => void;
 }) {
   return (
@@ -438,7 +438,7 @@ function Despensa({
                   item={item}
                   onAlterar={onAlterar}
                   onRemover={onRemover}
-                  onRenomear={onRenomear}
+                  onEditar={onEditar}
                 />
               ))}
             </ul>
