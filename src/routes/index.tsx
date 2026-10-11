@@ -72,9 +72,11 @@ function PaginaDespensa() {
     setItens((atual) => atual.filter((item) => item.id !== id));
   };
 
-  const renomearItem = (id: string, nome: string) => {
+  const editarItem = (id: string, nome: string, minimo: number) => {
     setItens((atual) =>
-      atual.map((item) => (item.id === id ? { ...item, nome } : item)),
+      atual.map((item) =>
+        item.id === id ? { ...item, nome, minimo } : item,
+      ),
     );
   };
 
@@ -157,7 +159,7 @@ function PaginaDespensa() {
             itens={itens}
             onAlterar={alterarQuantidade}
             onRemover={removerItem}
-            onRenomear={renomearItem}
+            onEditar={editarItem}
             onAdicionar={adicionarItem}
           />
         ) : (
@@ -187,35 +189,57 @@ function CartaoItem({
   item,
   onAlterar,
   onRemover,
-  onRenomear,
+  onEditar,
 }: {
   item: ItemDespensa;
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onRenomear: (id: string, nome: string) => void;
+  onEditar: (id: string, nome: string, minimo: number) => void;
 }) {
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState(item.nome);
+  const [minimo, setMinimo] = useState(String(item.minimo));
   const [erro, setErro] = useState("");
   const campoRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!editando) return;
     setNome(item.nome);
+    setMinimo(String(item.minimo));
     setErro("");
     campoRef.current?.focus();
     campoRef.current?.select();
-  }, [editando, item.nome]);
+  }, [editando, item.nome, item.minimo]);
 
-  const salvarNome = () => {
+  const ajustarMinimo = (delta: number) => {
+    setMinimo((atual) =>
+      String(Math.max(0, (parseInt(atual, 10) || 0) + delta)),
+    );
+  };
+
+  const aoTeclar = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      salvarEdicao();
+    } else if (e.key === "Escape") {
+      setEditando(false);
+    }
+  };
+
+  function salvarEdicao() {
     const nomeLimpo = nome.trim();
+    const minimoNum = parseInt(minimo, 10);
     if (!nomeLimpo) {
       setErro("Escreva o novo nome do produto.");
       return;
     }
-    onRenomear(item.id, nomeLimpo);
+    if (minimo.trim() === "" || Number.isNaN(minimoNum)) {
+      setErro("Informe a quantidade mínima ideal.");
+      return;
+    }
+    onEditar(item.id, nomeLimpo, Math.max(0, minimoNum));
     setEditando(false);
-  };
+  }
 
   return (
     <li
