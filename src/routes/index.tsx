@@ -229,7 +229,7 @@ function PaginaDespensa() {
         ) : aba === "compras" ? (
           <ListaCompras itens={listaCompras} />
         ) : (
-          <AreaPrioridades itens={itens} prioridades={prioridades} onAlterar={alterarQuantidade} onDefinirPrioridade={definirPrioridade} onAdicionarPrioridade={adicionarPrioridade} onRemoverPrioridade={removerPrioridade} />
+          <AreaPrioridades itens={itens} prioridades={prioridades} onAlterar={alterarQuantidade} onRemoverItem={removerItem} onDefinirPrioridade={definirPrioridade} onAdicionarPrioridade={adicionarPrioridade} onRemoverPrioridade={removerPrioridade} />
         )}
       </main>
     </div>
@@ -724,6 +724,7 @@ function AreaPrioridades({
   itens,
   prioridades,
   onAlterar,
+  onRemoverItem,
   onDefinirPrioridade,
   onAdicionarPrioridade,
   onRemoverPrioridade,
@@ -731,6 +732,7 @@ function AreaPrioridades({
   itens: ItemDespensa[];
   prioridades: Prioridade[];
   onAlterar: (id: string, delta: number) => void;
+  onRemoverItem: (id: string) => void;
   onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
   onAdicionarPrioridade: (nome: string) => boolean;
   onRemoverPrioridade: (prioridade: Prioridade) => void;
@@ -836,6 +838,17 @@ function AreaPrioridades({
                     className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"
                   >
                     <Plus className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm(`Excluir ${item.nome} da despensa?`)) onRemoverItem(item.id);
+                    }}
+                    aria-label={`Excluir ${item.nome} da despensa`}
+                    title={`Excluir ${item.nome}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
               </div>
