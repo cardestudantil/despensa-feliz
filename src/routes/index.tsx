@@ -7,7 +7,6 @@ import {
   ShoppingCart,
   Package,
   ClipboardList,
-  Flag,
   Pencil,
   Check,
   X,
@@ -49,7 +48,7 @@ export const Route = createFileRoute("/")({
   component: PaginaDespensa,
 });
 
-type Aba = "despensa" | "compras" | "prioridades";
+type Aba = "despensa" | "compras";
 
 function PaginaDespensa() {
   const [itens, setItens] = useState<ItemDespensa[]>([]);
@@ -83,20 +82,6 @@ function PaginaDespensa() {
 
   const definirPrioridade = (id: string, prioridade: Prioridade) => {
     setItens((atual) => atual.map((item) => item.id === id ? { ...item, prioridade } : item));
-  };
-
-  const adicionarPrioridade = (nome: string) => {
-    const valor = nome.trim().toLocaleLowerCase("pt-BR").replace(/[^a-z0-9áéíóúãõâêôç]+/g, "-").replace(/^-|-$/g, "");
-    if (!valor || prioridades.includes(valor)) return false;
-    setPrioridades((atual) => [...atual, valor]);
-    return true;
-  };
-
-  const removerPrioridade = (prioridade: Prioridade) => {
-    if (prioridades.length <= 1) return;
-    const substituta = prioridades.find((p) => p !== prioridade) || "normal";
-    setItens((atual) => atual.map((item) => item.prioridade === prioridade ? { ...item, prioridade: substituta } : item));
-    setPrioridades((atual) => atual.filter((p) => p !== prioridade));
   };
 
   const removerItem = (id: string) => {
@@ -194,27 +179,6 @@ function PaginaDespensa() {
               </span>
             )}
           </button>
-          <button
-            type="button"
-            onClick={() => setAba("prioridades")}
-            aria-pressed={aba === "prioridades"}
-            className={`relative flex min-h-12 items-center justify-center gap-2 rounded-lg text-undefined font-semibold transition-colors ${
-              aba === "prioridades"
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-secondary-foreground"
-            }`}
-          >
-            <Flag className="h-4 w-4" aria-hidden="true" />
-            Prioridades
-            {listaCompras.length > 0 && (
-              <span
-                className="ml-1 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-destructive px-1.5 text-xs font-bold text-destructive-foreground"
-                aria-label={`${listaCompras.length} itens prioritários`}
-              >
-                {listaCompras.length}
-              </span>
-            )}
-          </button>
         </div>
       </nav>
 
@@ -232,7 +196,7 @@ function PaginaDespensa() {
         ) : aba === "compras" ? (
           <ListaCompras itens={listaCompras} />
         ) : (
-          <AreaPrioridades itens={itens} prioridades={prioridades} onAlterar={alterarQuantidade} onRemoverItem={removerItem} onDefinirPrioridade={definirPrioridade} onAdicionarPrioridade={adicionarPrioridade} onRemoverPrioridade={removerPrioridade} />
+          <ListaCompras itens={listaCompras} />
         )}
       </main>
     </div>
@@ -799,149 +763,6 @@ function FormularioNovoItem({
           </p>
         )}
       </form>
-    </section>
-  );
-}
-
-function AreaPrioridades({
-  itens,
-  prioridades,
-  onAlterar,
-  onRemoverItem,
-  onDefinirPrioridade,
-  onAdicionarPrioridade,
-  onRemoverPrioridade,
-}: {
-  itens: ItemDespensa[];
-  prioridades: Prioridade[];
-  onAlterar: (id: string, delta: number) => void;
-  onRemoverItem: (id: string) => void;
-  onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
-  onAdicionarPrioridade: (nome: string) => boolean;
-  onRemoverPrioridade: (prioridade: Prioridade) => void;
-}) {
-  const [novaPrioridade, setNovaPrioridade] = useState("");
-  const [mensagemPrioridade, setMensagemPrioridade] = useState("");
-  const nomesPrioridades: Record<string, string> = { urgente: "Urgente", alta: "Alta", normal: "Normal", baixa: "Baixa" };
-  const rotular = (prioridade: Prioridade) => nomesPrioridades[prioridade] || prioridade.replace(/-/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("pt-BR"));
-  const ordem = (prioridade: Prioridade) => prioridades.indexOf(prioridade);
-  const ordenados = [...itens].sort((a, b) => ordem(a.prioridade) - ordem(b.prioridade) || a.nome.localeCompare(b.nome));
-  const contagem = (prioridade: Prioridade) => itens.filter((item) => item.prioridade === prioridade).length;
-  const semPrioridade = itens.filter((item) => item.prioridade === "nenhuma").length;
-  const criarPrioridade = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!novaPrioridade.trim()) { setMensagemPrioridade("Digite o nome da prioridade."); return; }
-    if (onAdicionarPrioridade(novaPrioridade)) { setMensagemPrioridade("Prioridade adicionada."); setNovaPrioridade(""); }
-    else setMensagemPrioridade("Essa prioridade já existe ou o nome não é válido.");
-  };
-
-  return (
-    <section aria-labelledby="prioridades-titulo" className="space-y-5">
-      <div>
-        <h2 id="prioridades-titulo" className="text-lg font-bold text-foreground">
-          Editar prioridades
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Escolha a prioridade de cada produto. Suas escolhas ficam salvas automaticamente.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <div className="rounded-lg border border-border bg-card p-3"><p className="text-xs text-muted-foreground">Sem prioridade</p><p className="mt-1 text-xl font-bold tabular-nums text-foreground">{semPrioridade}</p></div>
-        {prioridades.map((prioridade) => (
-          <div key={prioridade} className="rounded-lg border border-border bg-card p-3">
-            <p className="text-xs text-muted-foreground">{rotular(prioridade)}</p>
-            <p className={`mt-1 text-xl font-bold tabular-nums ${prioridade === "urgente" ? "text-destructive" : "text-foreground"}`}>
-              {contagem(prioridade)}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div className="rounded-lg border border-border bg-card p-4">
-        <h3 className="font-semibold text-card-foreground">Gerenciar prioridades</h3>
-        <p className="mt-1 text-xs text-muted-foreground">Inclua nomes personalizados ou exclua os que não usa. Ao excluir, os produtos passam para a primeira prioridade restante.</p>
-        <form onSubmit={criarPrioridade} className="mt-3 flex flex-col gap-2 sm:flex-row">
-          <input value={novaPrioridade} onChange={(e) => setNovaPrioridade(e.target.value)} maxLength={30} placeholder="Ex.: Comprar esta semana" aria-label="Nome da nova prioridade" className="min-h-10 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-          <button type="submit" className="min-h-10 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground">Incluir prioridade</button>
-        </form>
-        {mensagemPrioridade && <p role="status" className="mt-2 text-xs text-muted-foreground">{mensagemPrioridade}</p>}
-        <div className="mt-3 flex flex-wrap gap-2">
-          {prioridades.map((prioridade) => <div key={prioridade} className="flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm"><span>{rotular(prioridade)}</span><button type="button" onClick={() => onRemoverPrioridade(prioridade)} disabled={prioridades.length <= 1} aria-label={`Excluir prioridade ${rotular(prioridade)}`} title={`Excluir ${rotular(prioridade)}`} className="rounded-full p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:opacity-30"><X className="h-3.5 w-3.5" aria-hidden="true" /></button></div>)}
-        </div>
-      </div>
-
-      {ordenados.length === 0 ? (
-        <div className="rounded-lg border border-border bg-card p-8 text-center">
-          <ClipboardList className="mx-auto h-10 w-10 text-muted-foreground" aria-hidden="true" />
-          <h3 className="mt-3 font-bold text-card-foreground">Sua despensa está vazia</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Adicione produtos na aba Despensa para definir suas prioridades.</p>
-        </div>
-      ) : (
-        <ul className="space-y-3">
-          {ordenados.map((item) => (
-            <li key={item.id} className="rounded-lg border border-border bg-card p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-card-foreground">{item.nome}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {item.categoria} · {item.quantidade} {rotuloUnidade(item.unidade)} em casa
-                    {precisaComprar(item) ? " · precisa comprar" : ""}
-                  </p>
-                </div>
-                <label className="min-w-32">
-                  <span className="mb-1 block text-xs font-semibold text-muted-foreground">Prioridade</span>
-                  <select
-                    value={item.prioridade}
-                    onChange={(e) => onDefinirPrioridade(item.id, e.target.value as Prioridade)}
-                    aria-label={`Prioridade de ${item.nome}`}
-                    className="min-h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  >
-                    <option value="nenhuma">Sem prioridade</option>
-                    {prioridades.map((prioridade) => <option key={prioridade} value={prioridade}>{rotular(prioridade)}</option>)}
-                  </select>
-                </label>
-              </div>
-              <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
-                <span className="text-xs text-muted-foreground">
-                  Mínimo: {item.minimo} {rotuloUnidade(item.unidade)}
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => onAlterar(item.id, -1)}
-                    disabled={item.quantidade === 0}
-                    aria-label={`Diminuir quantidade de ${item.nome}`}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-secondary-foreground disabled:opacity-40"
-                  >
-                    <Minus className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                  <span className="min-w-6 text-center text-sm font-semibold tabular-nums">{item.quantidade}</span>
-                  <button
-                    type="button"
-                    onClick={() => onAlterar(item.id, 1)}
-                    aria-label={`Aumentar quantidade de ${item.nome}`}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"
-                  >
-                    <Plus className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (window.confirm(`Excluir ${item.nome} da despensa?`)) onRemoverItem(item.id);
-                    }}
-                    aria-label={`Excluir ${item.nome} da despensa`}
-                    title={`Excluir ${item.nome}`}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
     </section>
   );
 }
