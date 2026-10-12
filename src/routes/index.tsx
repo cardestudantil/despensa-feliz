@@ -570,7 +570,7 @@ function Despensa({
   itens: ItemDespensa[];
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade) => void;
+  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade, dataConferencia: string, dataUltimaCompra: string) => void;
   onAdicionar: (
     nome: string,
     categoria: Categoria,
