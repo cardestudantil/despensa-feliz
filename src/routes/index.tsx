@@ -893,21 +893,29 @@ function FormularioNovoItem({
 function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
   if (itens.length === 0) {
     return (
-      <div className="rounded-lg border-border bg-card p-8 text-center">
+      <div className="rounded-lg border border-border bg-card p-8 text-center">
         <ClipboardList
           className="mx-auto h-12 w-12 text-muted-foreground"
           aria-hidden="true"
         />
         <h2 className="mt-4 text-undefined font-bold text-card-foreground">
-          Tudo certo por aqui! 🎉
+          Sua despensa está vazia
         </h2>
         <p className="mt-2 text-undefined text-muted-foreground">
-          Nenhum produto está acabando. Quando algo chegar na quantidade
-          mínima, ele aparece aqui automaticamente.
+          Cadastre produtos na aba Despensa para ver aqui o estoque e a quantidade necessária para as compras.
         </p>
       </div>
     );
   }
+
+  const itensOrdenados = [...itens].sort((a, b) => {
+    const precisaA = precisaComprar(a);
+    const precisaB = precisaComprar(b);
+    if (precisaA !== precisaB) return precisaA ? -1 : 1;
+    return a.nome.localeCompare(b.nome, "pt-BR");
+  });
+
+  const quantidadePrecisando = itens.filter(precisaComprar).length;
 
   return (
     <section aria-labelledby="lista-compras-titulo">
@@ -915,35 +923,59 @@ function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
         id="lista-compras-titulo"
         className="mb-1 text-undefined font-bold text-foreground"
       >
-        Lista de compras
+        Estoque e necessidades de compra
       </h2>
       <p className="mb-4 text-undefined text-muted-foreground">
-        {itens.length === 1
-          ? "1 produto para comprar"
-          : `${itens.length} produtos para comprar`}
+        Todos os produtos cadastrados, com a quantidade em casa, o mínimo ideal e quanto falta para atingir esse mínimo.
       </p>
+      <div className="mb-4 rounded-lg border border-border bg-card p-3 text-sm text-foreground">
+        <strong>{quantidadePrecisando}</strong> de {itens.length} produtos estão no mínimo ou abaixo dele.
+      </div>
       <ul className="space-y-3">
-        {itens.map((item) => (
-          <li
-            key={item.id}
-            className="flex items-center justify-between gap-3 rounded-lg border-destructive bg-card p-4"
-          >
-            <div>
-              <h3 className="text-undefined font-bold text-card-foreground">
-                {item.nome}
-              </h3>
-              <p className="text-undefined text-muted-foreground">
-                {item.categoria} · em casa: {item.quantidade}{" "}
-                {rotuloUnidade(item.unidade)} · mínimo: {item.minimo}{" "}
-                {rotuloUnidade(item.unidade)}
-              </p>
-            </div>
-            <ShoppingCart
-              className="h-5 w-5 shrink-0 text-destructive"
-              aria-hidden="true"
-            />
-          </li>
-        ))}
+        {itensOrdenados.map((item) => {
+          const falta = Math.max(0, item.minimo - item.quantidade);
+          const noLimite = item.quantidade === item.minimo;
+          const abaixoDoMinimo = item.quantidade < item.minimo;
+          const precisaAtencao = precisaComprar(item);
+
+          return (
+            <li
+              key={item.id}
+              className={`rounded-xl border-2 bg-card p-4 ${abaixoDoMinimo ? "border-destructive" : noLimite ? "border-orange-400" : "border-border"}`}
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="text-undefined font-bold text-card-foreground">
+                    {item.nome}
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.categoria}</p>
+                </div>
+                <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${abaixoDoMinimo ? "bg-destructive text-destructive-foreground" : noLimite ? "bg-orange-500 text-white" : "bg-emerald-600 text-white"}`}>
+                  {abaixoDoMinimo ? "ABAIXO DO MÍNIMO" : noLimite ? "NO LIMITE MÍNIMO" : "ESTOQUE SUFICIENTE"}
+                </span>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="rounded-lg bg-background p-3">
+                  <span className="block text-xs text-muted-foreground">Em casa</span>
+                  <strong className="text-lg text-foreground">{item.quantidade} {rotuloUnidade(item.unidade)}</strong>
+                </div>
+                <div className="rounded-lg bg-background p-3">
+                  <span className="block text-xs text-muted-foreground">Mínimo ideal</span>
+                  <strong className="text-lg text-foreground">{item.minimo} {rotuloUnidade(item.unidade)}</strong>
+                </div>
+              </div>
+              <div className={`mt-3 rounded-lg p-3 ${precisaAtencao ? "bg-destructive/10" : "bg-emerald-600/10"}`}>
+                <p className="text-sm font-semibold text-foreground">
+                  {falta > 0
+                    ? `Comprar ${falta} ${rotuloUnidade(item.unidade)} para atingir o mínimo`
+                    : noLimite
+                      ? "Está no mínimo ideal: confira se deseja repor na próxima compra."
+                      : "Não precisa comprar para atingir o mínimo atual."}
+                </p>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );
