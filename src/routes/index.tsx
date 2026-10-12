@@ -480,7 +480,7 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
             onDefinirPrioridade={definirPrioridade}
           />
         ) : (
-          <ListaCompras itens={listaCompras} />
+          <ListaCompras itens={listaCompras} onMarcarComprado={(id, quantidade) => setItens((atual) => atual.map((item) => item.id === id ? { ...item, quantidade: item.quantidade + quantidade } : item))} />
         )}
       </main>
     </div>
@@ -1122,7 +1122,7 @@ function FormularioNovoItem({
   );
 }
 
-function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
+function ListaCompras({ itens, onMarcarComprado }: { itens: ItemDespensa[]; onMarcarComprado: (id: string, quantidade: number) => void }) {
   if (itens.length === 0) {
     return (
       <div className="rounded-lg border border-border bg-card p-8 text-center">
@@ -1196,27 +1196,27 @@ function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
                   <strong className="text-lg text-foreground">{item.minimo} {rotuloUnidade(item.unidade)}</strong>
                 </div>
               </div>
-              <div className={`mt-3 rounded-xl border-2 p-4 ${falta > 0 ? "border-destructive bg-destructive/10" : "border-emerald-600/30 bg-emerald-600/10"}`}>
-                {falta > 0 ? (
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-destructive text-3xl font-extrabold tabular-nums text-destructive-foreground">
-                      {falta}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Você precisa comprar</p>
-                      <p className="text-xl font-extrabold leading-tight text-foreground">
-                        {falta} {rotuloUnidade(item.unidade)}
-                      </p>
-                      <p className="mt-1 text-sm text-muted-foreground">para atingir o mínimo ideal</p>
-                    </div>
+              <div className="mt-3 rounded-xl border-2 border-destructive bg-destructive/10 p-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-destructive text-3xl font-extrabold tabular-nums text-destructive-foreground">
+                    {falta}
                   </div>
-                ) : (
-                  <p className="text-sm font-semibold text-foreground">
-                    {noLimite
-                      ? "Está no mínimo ideal: confira se deseja repor na próxima compra."
-                      : "Não precisa comprar para atingir o mínimo atual."}
-                  </p>
-                )}
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Você precisa comprar</p>
+                    <p className="text-xl font-extrabold leading-tight text-foreground">
+                      {falta} {rotuloUnidade(item.unidade)}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">para atingir o mínimo ideal</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onMarcarComprado(item.id, falta)}
+                  className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 text-base font-bold text-white transition-colors hover:bg-emerald-700"
+                >
+                  <Check className="h-5 w-5" aria-hidden="true" />
+                  Marcar como comprado
+                </button>
               </div>
             </li>
           );
