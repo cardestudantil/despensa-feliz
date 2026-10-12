@@ -388,7 +388,7 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
               Despensa Pacatito
             </h1>
             <p className="text-base text-muted-foreground">
-              Controle do mês.
+              Controle das compras do mês.
             </p>
           </div>
         </div>
