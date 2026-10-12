@@ -28,6 +28,7 @@ export interface ItemDespensa {
   unidade: Unidade;
   prioridade: Prioridade;
   dataCompra?: string;
+  foto?: string;
   dataConferencia?: string;
   dataUltimaCompra?: string;
 }
