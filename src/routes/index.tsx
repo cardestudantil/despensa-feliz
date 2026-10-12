@@ -1196,14 +1196,27 @@ function ListaCompras({ itens }: { itens: ItemDespensa[] }) {
                   <strong className="text-lg text-foreground">{item.minimo} {rotuloUnidade(item.unidade)}</strong>
                 </div>
               </div>
-              <div className={`mt-3 rounded-lg p-3 ${precisaAtencao ? "bg-destructive/10" : "bg-emerald-600/10"}`}>
-                <p className="text-sm font-semibold text-foreground">
-                  {falta > 0
-                    ? `Comprar ${falta} ${rotuloUnidade(item.unidade)} para atingir o mínimo`
-                    : noLimite
+              <div className={`mt-3 rounded-xl border-2 p-4 ${falta > 0 ? "border-destructive bg-destructive/10" : "border-emerald-600/30 bg-emerald-600/10"}`}>
+                {falta > 0 ? (
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-destructive text-3xl font-extrabold tabular-nums text-destructive-foreground">
+                      {falta}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Você precisa comprar</p>
+                      <p className="text-xl font-extrabold leading-tight text-foreground">
+                        {falta} {rotuloUnidade(item.unidade)}
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">para atingir o mínimo ideal</p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm font-semibold text-foreground">
+                    {noLimite
                       ? "Está no mínimo ideal: confira se deseja repor na próxima compra."
                       : "Não precisa comprar para atingir o mínimo atual."}
-                </p>
+                  </p>
+                )}
               </div>
             </li>
           );
