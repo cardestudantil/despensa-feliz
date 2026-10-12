@@ -84,10 +84,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Despensa Pacatito" },
       { property: "og:description", content: "Controle simples da despensa e lista de compras." },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: "https://i.imgur.com/0o29LHc.jpeg" },
+      { property: "og:image", content: "https://i.imgur.com/Ipn1L8k.jpeg" },
       { property: "og:image:alt", content: "Despensa Pacatito — organização da despensa e lista de compras" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "https://i.imgur.com/0o29LHc.jpeg" },
+      { name: "twitter:image", content: "https://i.imgur.com/Ipn1L8k.jpeg" },
       { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
