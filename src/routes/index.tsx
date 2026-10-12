@@ -549,7 +549,7 @@ function CartaoItem({
   item: ItemDespensa;
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade, dataCompra: string) => void;
+  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade, dataCompra: string, foto?: string) => void;
   onReordenar: (idOrigem: string, idDestino: string) => void;
   prioridades: Prioridade[];
   onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
@@ -559,6 +559,8 @@ function CartaoItem({
   const [minimo, setMinimo] = useState(String(item.minimo));
   const [unidade, setUnidade] = useState<Unidade>(item.unidade);
   const [dataCompra, setDataCompra] = useState(item.dataCompra || "");
+  const [foto, setFoto] = useState(item.foto || "");
+  const [erroFotoItem, setErroFotoItem] = useState("");
   const [erro, setErro] = useState("");
   const campoRef = useRef<HTMLInputElement>(null);
 
@@ -568,6 +570,8 @@ function CartaoItem({
     setMinimo(String(item.minimo));
     setUnidade(item.unidade);
     setDataCompra(item.dataCompra || "");
+    setFoto(item.foto || "");
+    setErroFotoItem("");
     setErro("");
     campoRef.current?.focus();
     campoRef.current?.select();
@@ -599,7 +603,7 @@ function CartaoItem({
       setErro("Informe a quantidade mínima ideal.");
       return;
     }
-    onEditar(item.id, nomeLimpo, Math.max(0, minimoNum), unidade, dataCompra);
+    onEditar(item.id, nomeLimpo, Math.max(0, minimoNum), unidade, dataCompra, foto || undefined);
     setEditando(false);
   }
 
@@ -922,6 +926,7 @@ function Despensa({
     unidade: Unidade,
     prioridade: Prioridade,
     dataCompra: string,
+    foto?: string,
   ) => void;
   prioridades: Prioridade[];
   onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
@@ -973,6 +978,7 @@ function FormularioNovoItem({
     unidade: Unidade,
     prioridade: Prioridade,
     dataCompra: string,
+    foto?: string,
   ) => void;
   prioridades: Prioridade[];
 }) {
