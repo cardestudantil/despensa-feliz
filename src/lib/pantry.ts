@@ -111,6 +111,15 @@ export function salvarItens(itens: ItemDespensa[]) {
   }
 }
 
+export function calcularPrioridadeEstoque(
+  item: Pick<ItemDespensa, "quantidade" | "minimo">,
+): Prioridade {
+  if (item.quantidade <= 0) return "urgente";
+  if (item.quantidade < item.minimo) return "alta";
+  if (item.quantidade === item.minimo) return "normal";
+  return "baixa";
+}
+
 export function precisaComprar(item: ItemDespensa): boolean {
-  return item.quantidade < item.minimo;
+  return item.quantidade <= item.minimo;
 }
