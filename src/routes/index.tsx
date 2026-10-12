@@ -388,7 +388,7 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
               Despensa Pacatito
             </h1>
             <p className="text-undefined text-muted-foreground">
-              Controle o que tem em casa e o que precisa comprar.
+              Controle do mês.
             </p>
           </div>
         </div>
