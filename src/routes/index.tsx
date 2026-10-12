@@ -1199,7 +1199,7 @@ function ItemCompra({
         {item.nome}
       </h3>
       <p className="mt-2 text-lg font-extrabold text-foreground">
-        Para repor até o mínimo: {Math.max(0, item.minimo - item.quantidade)} {rotuloUnidade(item.unidade)}
+        Para repor até o mínimo: {item.quantidade >= item.minimo ? "NO MÍNIMO" : `${Math.max(0, item.minimo - item.quantidade)} ${rotuloUnidade(item.unidade)}`}
       </p>
       <div className="mt-3">
         <label htmlFor={`quantidade-comprada-${item.id}`} className="mb-1 block text-base font-semibold text-foreground">
