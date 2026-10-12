@@ -1148,8 +1148,8 @@ function ListaCompras({ itens, onVoltar, onMarcarComprado }: { itens: ItemDespen
 
   return (
     <section aria-labelledby="lista-compras-titulo">
-      <button type="button" onClick={onVoltar} className="mb-4 flex min-h-12 items-center justify-center gap-2 rounded-lg bg-secondary px-4 text-base font-bold text-secondary-foreground transition-colors hover:bg-accent">
-        ← Voltar para a despensa
+      <button type="button" onClick={onVoltar} className="fixed bottom-5 right-5 z-50 flex min-h-14 items-center justify-center gap-2 rounded-full border border-border bg-secondary px-5 text-base font-bold text-secondary-foreground shadow-xl transition-colors hover:bg-accent">
+        ← Voltar
       </button>
       <h2
         id="lista-compras-titulo"
