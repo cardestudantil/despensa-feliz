@@ -245,7 +245,7 @@ function PaginaDespensa() {
           </div>
           <div className="rounded-lg border border-border bg-background p-3">
             <label htmlFor="data-ultima-compra-geral" className="mb-1 block text-sm font-semibold text-foreground">Data da última compra</label>
-            <input id="data-ultima-compra-geral" type="date" value={dataUltimaCompra} onChange={(e) => atualizarDataGeral("dataUltimaCompra", e.target.value) className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            <input id="data-ultima-compra-geral" type="date" value={dataUltimaCompra} onChange={(e) => atualizarDataGeral("dataUltimaCompra", e.target.value)} className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
         </div>
       </header>
