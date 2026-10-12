@@ -11,6 +11,7 @@ import {
   Pencil,
   Check,
   X,
+  ImagePlus,
 } from "lucide-react";
 import {
   CATEGORIAS,
@@ -55,6 +56,32 @@ export const Route = createFileRoute("/")({
 type Aba = "despensa" | "compras";
 
 const BANNER_PADRAO = "https://i.imgur.com/0o29LHc.jpeg";
+
+async function prepararFotoProduto(arquivo: File): Promise<string> {
+  if (!arquivo.type.startsWith("image/")) throw new Error("Escolha um arquivo de imagem.");
+  const url = await new Promise<string>((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onload = () => typeof leitor.result === "string" ? resolve(leitor.result) : reject(new Error("Não foi possível abrir a imagem."));
+    leitor.onerror = () => reject(new Error("Não foi possível abrir a imagem."));
+    leitor.readAsDataURL(arquivo);
+  });
+  const imagem = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Imagem inválida."));
+    img.src = url;
+  });
+  const escala = Math.min(1, 360 / Math.max(imagem.width, imagem.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(imagem.width * escala));
+  canvas.height = Math.max(1, Math.round(imagem.height * escala));
+  const contexto = canvas.getContext("2d");
+  if (!contexto) throw new Error("Não foi possível processar a imagem.");
+  contexto.drawImage(imagem, 0, 0, canvas.width, canvas.height);
+  const reduzida = canvas.toDataURL("image/jpeg", 0.62);
+  if (reduzida.length > 120000) throw new Error("A foto ficou grande. Escolha uma imagem mais simples.");
+  return reduzida;
+}
 
 function AppComLogin() {
   const [sessao, setSessao] = useState<{ id: string; email: string } | null | undefined>(undefined);
@@ -314,11 +341,11 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
     });
   };
 
-  const editarItem = (id: string, nome: string, minimo: number, unidade: Unidade, dataCompra: string) => {
+  const editarItem = (id: string, nome: string, minimo: number, unidade: Unidade, dataCompra: string, foto?: string) => {
     setItens((atual) =>
       atual.map((item) =>
         item.id === id
-          ? { ...item, nome, minimo, unidade, dataCompra, prioridade: calcularPrioridadeEstoque({ quantidade: item.quantidade, minimo }) }
+          ? { ...item, nome, minimo, unidade, dataCompra, foto, prioridade: calcularPrioridadeEstoque({ quantidade: item.quantidade, minimo }) }
           : item,
       ),
     );
@@ -330,6 +357,7 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
     minimo: number,
     unidade: Unidade,
     dataCompra: string,
+    foto?: string,
   ) => {
     setItens((atual) => [
       ...atual,
@@ -342,6 +370,7 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
         unidade,
         prioridade: calcularPrioridadeEstoque({ quantidade: 0, minimo }),
         dataCompra,
+        foto,
       },
     ]);
   };
