@@ -657,6 +657,18 @@ function CartaoItem({
             />
           </div>
 
+          <div className="rounded-lg border border-border p-3">
+            <span className="mb-2 block font-semibold text-foreground">Foto do produto</span>
+            {foto ? <img src={foto} alt={`Foto de ${item.nome}`} className="mb-3 h-24 w-24 rounded-lg border border-border object-cover" /> : <div className="mb-3 flex h-24 w-24 items-center justify-center rounded-lg bg-secondary text-muted-foreground"><Package className="h-8 w-8" aria-hidden="true" /></div>}
+            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-secondary px-4 font-semibold text-secondary-foreground">
+              <ImagePlus className="h-5 w-5" aria-hidden="true" /> {foto ? "Trocar foto" : "Adicionar foto"}
+              <input type="file" accept="image/*" className="sr-only" onChange={async (e) => { const arquivo = e.target.files?.[0]; if (!arquivo) return; try { setFoto(await prepararFotoProduto(arquivo)); setErroFotoItem(""); } catch (erro) { setErroFotoItem(erro instanceof Error ? erro.message : "Não foi possível carregar a foto."); } e.currentTarget.value = ""; }} />
+            </label>
+            {foto && <button type="button" onClick={() => { setFoto(""); setErroFotoItem(""); }} className="ml-2 min-h-11 rounded-lg px-3 font-semibold text-destructive">Remover foto</button>}
+            {erroFotoItem && <p role="alert" className="mt-2 text-sm font-semibold text-destructive">{erroFotoItem}</p>}
+            <p className="mt-2 text-xs text-muted-foreground">A foto será reduzida e sincronizada com sua conta.</p>
+          </div>
+
           <div>
             <label
               htmlFor={`editar-data-compra-${item.id}`}
@@ -785,7 +797,10 @@ function CartaoItem({
               <GripVertical className="h-4 w-4" aria-hidden="true" />
               <span>Arraste para reorganizar</span>
             </div>
-            <h3 className="text-undefined font-bold text-card-foreground">{item.nome}</h3>
+            <div className="flex items-center gap-3">
+              {item.foto ? <img src={item.foto} alt={`Foto de ${item.nome}`} className="h-16 w-16 shrink-0 rounded-lg border border-border object-cover" /> : <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-background text-muted-foreground"><Package className="h-7 w-7" aria-hidden="true" /></div>}
+              <h3 className="text-undefined font-bold text-card-foreground">{item.nome}</h3>
+            </div>
             <span className={`mt-2 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${item.prioridade === "nenhuma" ? "bg-secondary text-secondary-foreground" : item.prioridade === "alta" ? "bg-red-600 text-white" : item.prioridade === "urgente" ? "bg-orange-600 text-white" : item.prioridade === "normal" ? "bg-blue-600 text-white" : item.prioridade === "baixa" ? "bg-emerald-600 text-white" : "bg-violet-600 text-white"}`}>
               {item.prioridade === "nenhuma" ? "Sem prioridade" : `Prioridade: ${{ urgente: "Urgente", alta: "Alta", normal: "Normal", baixa: "Baixa" }[item.prioridade] || item.prioridade.replace(/-/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("pt-BR"))}`}
             </span>
