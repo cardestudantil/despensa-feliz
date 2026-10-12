@@ -200,15 +200,7 @@ function PaginaDespensa() {
                 <p className="text-xs">Sua imagem padrão está sendo carregada</p>
               </div>
             )}
-            <div className="flex flex-wrap items-center justify-center gap-2 border-t border-border p-3">
-              <input ref={campoBannerRef} id="banner-despensa" type="file" accept="image/*" className="sr-only" onChange={(e) => escolherBanner(e.target.files?.[0])} />
-              <button type="button" onClick={() => campoBannerRef.current?.click()} className="min-h-10 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">
-                {banner ? "Trocar banner" : "Adicionar banner"}
-              </button>
-              {banner && <button type="button" onClick={removerBanner} className="min-h-10 rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-opacity hover:opacity-90">Remover banner</button>}
-              <p className="w-full text-center text-xs text-muted-foreground">Imagem JPG, PNG ou WEBP • até 1,5 MB</p>
-              {erroBanner && <p role="alert" className="w-full text-center text-sm font-medium text-destructive">{erroBanner}</p>}
-            </div>
+
           </div>
         </div>
         <div className="mx-auto grid max-w-3xl grid-cols-1 gap-3 px-4 pb-4 sm:grid-cols-2">
