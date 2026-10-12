@@ -58,10 +58,16 @@ function PaginaDespensa() {
   const [dataConferencia, setDataConferencia] = useState("");
   const [dataUltimaCompra, setDataUltimaCompra] = useState("");
   const [datasCarregadas, setDatasCarregadas] = useState(false);
+  const [banner, setBanner] = useState("");
+  const [erroBanner, setErroBanner] = useState("");
+  const campoBannerRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setItens(carregarItens());
     setPrioridades(carregarPrioridades());
+    try {
+      setBanner(window.localStorage.getItem("despensa-banner-v1") || "");
+    } catch { /* inicia sem banner se o armazenamento estiver indisponível */ }
     try {
       const datasSalvas = JSON.parse(window.localStorage.getItem("despensa-datas-gerais-v1") || "{}");
       if (typeof datasSalvas.dataConferencia === "string") setDataConferencia(datasSalvas.dataConferencia);
@@ -133,6 +139,38 @@ function PaginaDespensa() {
     ]);
   };
 
+  const escolherBanner = (arquivo?: File) => {
+    setErroBanner("");
+    if (!arquivo) return;
+    if (!arquivo.type.startsWith("image/")) {
+      setErroBanner("Escolha um arquivo de imagem.");
+      return;
+    }
+    if (arquivo.size > 1.5 * 1024 * 1024) {
+      setErroBanner("A imagem deve ter no máximo 1,5 MB.");
+      return;
+    }
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      const imagem = typeof leitor.result === "string" ? leitor.result : "";
+      try {
+        window.localStorage.setItem("despensa-banner-v1", imagem);
+        setBanner(imagem);
+      } catch {
+        setErroBanner("Não foi possível salvar essa imagem. Escolha uma imagem menor.");
+      }
+    };
+    leitor.onerror = () => setErroBanner("Não foi possível abrir essa imagem. Tente outro arquivo.");
+    leitor.readAsDataURL(arquivo);
+  };
+
+  const removerBanner = () => {
+    try { window.localStorage.removeItem("despensa-banner-v1"); } catch { /* armazenamento indisponível */ }
+    setBanner("");
+    setErroBanner("");
+    if (campoBannerRef.current) campoBannerRef.current.value = "";
+  };
+
   const listaCompras = useMemo(() => itens.filter(precisaComprar), [itens]);
 
   return (
@@ -147,6 +185,28 @@ function PaginaDespensa() {
             <p className="text-undefined text-muted-foreground">
               Controle o que tem em casa e o que precisa comprar
             </p>
+          </div>
+        </div>
+        <div className="mx-auto max-w-3xl px-4 pb-4">
+          <div className="overflow-hidden rounded-xl border border-dashed border-border bg-background">
+            {banner ? (
+              <img src={banner} alt="Banner do Despensa Pacatito" className="block max-h-56 w-full object-cover" />
+            ) : (
+              <div className="flex min-h-24 flex-col items-center justify-center gap-1 px-4 py-5 text-center text-muted-foreground">
+                <Package className="h-6 w-6" aria-hidden="true" />
+                <p className="text-sm font-semibold">Espaço para seu banner</p>
+                <p className="text-xs">Adicione uma imagem para personalizar o topo do aplicativo</p>
+              </div>
+            )}
+            <div className="flex flex-wrap items-center justify-center gap-2 border-t border-border p-3">
+              <input ref={campoBannerRef} id="banner-despensa" type="file" accept="image/*" className="sr-only" onChange={(e) => escolherBanner(e.target.files?.[0])} />
+              <button type="button" onClick={() => campoBannerRef.current?.click()} className="min-h-10 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">
+                {banner ? "Trocar banner" : "Adicionar banner"}
+              </button>
+              {banner && <button type="button" onClick={removerBanner} className="min-h-10 rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-opacity hover:opacity-90">Remover banner</button>}
+              <p className="w-full text-center text-xs text-muted-foreground">Imagem JPG, PNG ou WEBP • até 1,5 MB</p>
+              {erroBanner && <p role="alert" className="w-full text-center text-sm font-medium text-destructive">{erroBanner}</p>}
+            </div>
           </div>
         </div>
         <div className="mx-auto grid max-w-3xl grid-cols-1 gap-3 px-4 pb-4 sm:grid-cols-2">
