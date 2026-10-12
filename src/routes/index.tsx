@@ -139,10 +139,11 @@ function PaginaDespensa() {
 
       const reorganizados = [...daCategoria];
       const [movido] = reorganizados.splice(indiceOrigem, 1);
+      if (!movido) return atual;
       reorganizados.splice(indiceDestino, 0, movido);
       let indice = 0;
       return atual.map((item) =>
-        item.categoria === origem.categoria ? reorganizados[indice++] : item,
+        item.categoria === origem.categoria ? (reorganizados[indice++] ?? item) : item,
       );
     });
   };
