@@ -1137,93 +1137,46 @@ function ListaCompras({ itens, onMarcarComprado }: { itens: ItemDespensa[]; onMa
           aria-hidden="true"
         />
         <h2 className="mt-4 text-undefined font-bold text-card-foreground">
-          Sua despensa está vazia
+          Nenhuma compra necessária
         </h2>
         <p className="mt-2 text-undefined text-muted-foreground">
-          Cadastre produtos na aba Despensa para ver aqui o estoque e a quantidade necessária para as compras.
+          Quando algum produto precisar ser reposto, ele aparecerá nesta lista.
         </p>
       </div>
     );
   }
 
-  const itensOrdenados = [...itens].sort((a, b) => {
-    const precisaA = precisaComprar(a);
-    const precisaB = precisaComprar(b);
-    if (precisaA !== precisaB) return precisaA ? -1 : 1;
-    return a.nome.localeCompare(b.nome, "pt-BR");
-  });
-
-  const quantidadePrecisando = itens.filter(precisaComprar).length;
-
   return (
     <section aria-labelledby="lista-compras-titulo">
       <h2
         id="lista-compras-titulo"
-        className="mb-1 text-undefined font-bold text-foreground"
+        className="mb-4 text-undefined font-bold text-foreground"
       >
-        Estoque e necessidades de compra
+        Lista de compras
       </h2>
-      <p className="mb-4 text-undefined text-muted-foreground">
-        Todos os produtos cadastrados, com a quantidade em casa, o mínimo ideal e quanto falta para atingir esse mínimo.
-      </p>
-      <div className="mb-4 rounded-lg border border-border bg-card p-3 text-sm text-foreground">
-        <strong>{quantidadePrecisando}</strong> de {itens.length} produtos estão no mínimo ou abaixo dele.
-      </div>
       <ul className="space-y-3">
-        {itensOrdenados.map((item) => {
-          const falta = Math.max(0, item.minimo - item.quantidade);
-          const noLimite = item.quantidade === item.minimo;
-          const abaixoDoMinimo = item.quantidade < item.minimo;
-          const precisaAtencao = precisaComprar(item);
+        {itens.map((item) => {
+          const quantidadeComprar = Math.max(0, item.minimo - item.quantidade);
 
           return (
             <li
               key={item.id}
-              className={`rounded-xl border-2 bg-card p-4 ${abaixoDoMinimo ? "border-destructive" : noLimite ? "border-orange-400" : "border-border"}`}
+              className="rounded-xl border border-border bg-card p-4"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h3 className="text-undefined font-bold text-card-foreground">
-                    {item.nome}
-                  </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{item.categoria}</p>
-                </div>
-                <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${abaixoDoMinimo ? "bg-destructive text-destructive-foreground" : noLimite ? "bg-orange-500 text-white" : "bg-emerald-600 text-white"}`}>
-                  {abaixoDoMinimo ? "ABAIXO DO MÍNIMO" : noLimite ? "NO LIMITE MÍNIMO" : "ESTOQUE SUFICIENTE"}
-                </span>
-              </div>
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                <div className="rounded-lg bg-background p-3">
-                  <span className="block text-xs text-muted-foreground">Em casa</span>
-                  <strong className="text-lg text-foreground">{item.quantidade} {rotuloUnidade(item.unidade)}</strong>
-                </div>
-                <div className="rounded-lg bg-background p-3">
-                  <span className="block text-xs text-muted-foreground">Mínimo ideal</span>
-                  <strong className="text-lg text-foreground">{item.minimo} {rotuloUnidade(item.unidade)}</strong>
-                </div>
-              </div>
-              <div className="mt-3 rounded-xl border-2 border-destructive bg-destructive/10 p-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-destructive text-3xl font-extrabold tabular-nums text-destructive-foreground">
-                    {falta}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Você precisa comprar</p>
-                    <p className="text-xl font-extrabold leading-tight text-foreground">
-                      {falta} {rotuloUnidade(item.unidade)}
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">para atingir o mínimo ideal</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onMarcarComprado(item.id, falta)}
-                  className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 text-base font-bold text-white transition-colors hover:bg-emerald-700"
-                >
-                  <Check className="h-5 w-5" aria-hidden="true" />
-                  Marcar como comprado
-                </button>
-              </div>
+              <h3 className="text-undefined font-bold text-card-foreground">
+                {item.nome}
+              </h3>
+              <p className="mt-2 text-lg font-extrabold text-foreground">
+                Comprar: {quantidadeComprar} {rotuloUnidade(item.unidade)}
+              </p>
+              <button
+                type="button"
+                onClick={() => onMarcarComprado(item.id, quantidadeComprar)}
+                className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 text-base font-bold text-white transition-colors hover:bg-emerald-700"
+              >
+                <Check className="h-5 w-5" aria-hidden="true" />
+                Marcar como comprado
+              </button>
             </li>
           );
         })}
