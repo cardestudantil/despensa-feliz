@@ -26,6 +26,8 @@ import {
   type Prioridade,
   type Unidade,
 } from "@/lib/pantry";
+import { supabase } from "@/integrations/supabase/client";
+import { buscarDespensa, normalizar, salvarDespensa, serializar, type DadosDespensa } from "@/lib/sync";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -46,14 +48,86 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: PaginaDespensa,
+  component: AppComLogin,
 });
 
 type Aba = "despensa" | "compras";
 
 const BANNER_PADRAO = "https://i.imgur.com/ihOcMO0.jpeg";
 
-function PaginaDespensa() {
+function AppComLogin() {
+  const [sessao, setSessao] = useState<{ id: string; email: string } | null | undefined>(undefined);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) =>
+      setSessao(data.user ? { id: data.user.id, email: data.user.email ?? "" } : null),
+    );
+    const { data } = supabase.auth.onAuthStateChange((evento, s) => {
+      if (evento !== "SIGNED_IN" && evento !== "SIGNED_OUT" && evento !== "USER_UPDATED") return;
+      setSessao(s?.user ? { id: s.user.id, email: s.user.email ?? "" } : null);
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
+  if (sessao === undefined) {
+    return <div className="flex min-h-dvh items-center justify-center bg-background text-lg text-muted-foreground">Carregando…</div>;
+  }
+  if (!sessao) return <TelaLogin />;
+  return <PaginaDespensa usuarioId={sessao.id} email={sessao.email} />;
+}
+
+function TelaLogin() {
+  const [modo, setModo] = useState<"entrar" | "criar">("entrar");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [msg, setMsg] = useState("");
+  const [erro, setErro] = useState("");
+  const [enviando, setEnviando] = useState(false);
+
+  const enviar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErro(""); setMsg(""); setEnviando(true);
+    if (modo === "entrar") {
+      const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+      if (error) setErro("E-mail ou senha incorretos (ou e-mail ainda não confirmado).");
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password: senha, options: { emailRedirectTo: window.location.origin } });
+      if (error) setErro(error.message.includes("Password") ? "A senha precisa ter pelo menos 6 caracteres." : "Não foi possível criar a conta. Verifique o e-mail.");
+      else setMsg("Conta criada! Abra o e-mail que enviamos e clique no link de confirmação. Depois volte e entre.");
+    }
+    setEnviando(false);
+  };
+
+  return (
+    <div className="flex min-h-dvh items-center justify-center bg-background px-4">
+      <form onSubmit={enviar} className="w-full max-w-md space-y-4 rounded-xl border border-border bg-card p-6">
+        <div className="flex items-center gap-3">
+          <Package className="h-7 w-7 text-primary" aria-hidden="true" />
+          <h1 className="text-2xl font-bold text-foreground">Despensa Pacatito</h1>
+        </div>
+        <p className="text-lg text-muted-foreground">
+          {modo === "entrar" ? "Entre com a conta da família para ver a despensa em todos os aparelhos." : "Crie a conta da família (faça isso só uma vez)."}
+        </p>
+        <div>
+          <label htmlFor="login-email" className="mb-1 block text-lg font-semibold text-foreground">E-mail</label>
+          <input id="login-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="min-h-14 w-full rounded-lg border border-input bg-background px-4 text-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+        </div>
+        <div>
+          <label htmlFor="login-senha" className="mb-1 block text-lg font-semibold text-foreground">Senha</label>
+          <input id="login-senha" type="password" required minLength={6} autoComplete={modo === "entrar" ? "current-password" : "new-password"} value={senha} onChange={(e) => setSenha(e.target.value)} className="min-h-14 w-full rounded-lg border border-input bg-background px-4 text-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+        </div>
+        {erro && <p role="alert" className="text-base font-semibold text-destructive">{erro}</p>}
+        {msg && <p role="status" className="text-base font-semibold text-primary">{msg}</p>}
+        <button type="submit" disabled={enviando} className="min-h-14 w-full rounded-lg bg-primary text-lg font-bold text-primary-foreground disabled:opacity-60">
+          {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
+        </button>
+        <button type="button" onClick={() => { setModo(modo === "entrar" ? "criar" : "entrar"); setErro(""); setMsg(""); }} className="min-h-12 w-full rounded-lg bg-secondary text-base font-semibold text-secondary-foreground">
+          {modo === "entrar" ? "Primeira vez? Criar conta da família" : "Já tenho conta: entrar"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email?: string } = {}) {
   const [itens, setItens] = useState<ItemDespensa[]>([]);
   const [aba, setAba] = useState<Aba>("despensa");
   const [carregado, setCarregado] = useState(false);
@@ -103,6 +177,80 @@ function PaginaDespensa() {
   useEffect(() => {
     if (carregado && prioridades.length > 0) salvarPrioridades(prioridades);
   }, [prioridades, carregado]);
+
+  // ---- Sincronização online entre aparelhos ----
+  const [sincronizado, setSincronizado] = useState(false);
+  const [statusSync, setStatusSync] = useState("");
+  const ultimoConhecido = useRef("");
+
+  const aplicarRemoto = (d: DadosDespensa) => {
+    ultimoConhecido.current = serializar(d);
+    setItens(d.itens);
+    if (d.prioridades.length > 0) setPrioridades(d.prioridades);
+    datasRef.current = { ...d.datas };
+    setDataConferencia(d.datas.dataConferencia);
+    setDataUltimaCompra(d.datas.dataUltimaCompra);
+    try { window.localStorage.setItem("despensa-datas-gerais-v1", JSON.stringify(d.datas)); } catch { /* ignora */ }
+  };
+
+  useEffect(() => {
+    if (!carregado || !usuarioId) return;
+    let ativo = true;
+    (async () => {
+      try {
+        const remoto = await buscarDespensa(usuarioId);
+        if (!ativo) return;
+        if (remoto && remoto.itens.length > 0) {
+          aplicarRemoto(remoto);
+        } else {
+          // Primeira vez: envia os dados que já estão neste aparelho, sem apagar nada.
+          const locais: DadosDespensa = { itens, prioridades, datas: { ...datasRef.current } };
+          await salvarDespensa(usuarioId, locais);
+          ultimoConhecido.current = serializar(locais);
+        }
+        setSincronizado(true);
+        setStatusSync("");
+      } catch {
+        setStatusSync("Sem conexão: as mudanças ficam salvas neste aparelho.");
+      }
+    })();
+    const canal = supabase
+      .channel(`despensa-${usuarioId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "despensa", filter: `user_id=eq.${usuarioId}` },
+        (payload) => {
+          const linha = payload.new as { itens: unknown; prioridades: unknown; datas: unknown } | undefined;
+          if (!linha || !("itens" in linha)) return;
+          const d = normalizar(linha);
+          if (serializar(d) === ultimoConhecido.current) return;
+          aplicarRemoto(d);
+        },
+      )
+      .subscribe();
+    return () => {
+      ativo = false;
+      supabase.removeChannel(canal);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [carregado, usuarioId]);
+
+  useEffect(() => {
+    if (!sincronizado || !usuarioId) return;
+    const atual: DadosDespensa = { itens, prioridades, datas: { dataConferencia, dataUltimaCompra } };
+    const texto = serializar(atual);
+    if (texto === ultimoConhecido.current) return;
+    const t = setTimeout(() => {
+      ultimoConhecido.current = texto;
+      salvarDespensa(usuarioId, atual)
+        .then(() => setStatusSync(""))
+        .catch(() => {
+          ultimoConhecido.current = "";
+          setStatusSync("Não foi possível sincronizar agora. Tentaremos de novo na próxima mudança.");
+        });
+    }, 500);
+    return () => clearTimeout(t);
+  }, [itens, prioridades, dataConferencia, dataUltimaCompra, sincronizado, usuarioId]);
 
   const alterarQuantidade = (id: string, delta: number) => {
     setItens((atual) =>
