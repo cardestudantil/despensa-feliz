@@ -27,6 +27,7 @@ export interface ItemDespensa {
   minimo: number;
   unidade: Unidade;
   prioridade: Prioridade;
+  dataCompra?: string;
   dataConferencia?: string;
   dataUltimaCompra?: string;
 }
