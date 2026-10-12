@@ -69,19 +69,32 @@ export function carregarItens(): ItemDespensa[] {
     const itens = JSON.parse(bruto) as ItemDespensa[];
     if (!Array.isArray(itens)) return ITENS_INICIAIS;
     // Itens salvos antes de existir unidade: assume "unidade".
-    return itens.map((item) => ({
-      ...item,
-      unidade: UNIDADES_VALIDAS.includes(item.unidade) ? item.unidade : "unidade",
-      prioridade: ["urgente", "alta", "normal", "baixa"].includes(item.prioridade)
-        ? item.prioridade
-        : item.quantidade === 0
-          ? "urgente"
-          : item.quantidade < item.minimo
-            ? "alta"
-            : item.quantidade === item.minimo
-              ? "normal"
-              : "baixa",
-    }));
+    let prioridadesPersonalizadas: string[] = [];
+    try {
+      const salvas = JSON.parse(window.localStorage.getItem(PRIORIDADES_STORAGE_KEY) || "null");
+      if (Array.isArray(salvas)) prioridadesPersonalizadas = salvas.filter((p): p is string => typeof p === "string");
+    } catch {
+      prioridadesPersonalizadas = [];
+    }
+    return itens.map((item) => {
+      const prioridadeSalva = typeof item.prioridade === "string" &&
+        (item.prioridade === "nenhuma" ||
+          ["urgente", "alta", "normal", "baixa"].includes(item.prioridade) ||
+          prioridadesPersonalizadas.includes(item.prioridade));
+      return {
+        ...item,
+        unidade: UNIDADES_VALIDAS.includes(item.unidade) ? item.unidade : "unidade",
+        prioridade: prioridadeSalva
+          ? item.prioridade
+          : item.quantidade === 0
+            ? "urgente"
+            : item.quantidade < item.minimo
+              ? "alta"
+              : item.quantidade === item.minimo
+                ? "normal"
+                : "baixa",
+      };
+    });
   } catch {
     return ITENS_INICIAIS;
   }
