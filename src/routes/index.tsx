@@ -227,6 +227,7 @@ function PaginaDespensa() {
             onEditar={editarItem}
             onAdicionar={adicionarItem}
             prioridades={prioridades}
+            onDefinirPrioridade={definirPrioridade}
           />
         ) : aba === "compras" ? (
           <ListaCompras itens={listaCompras} />
@@ -258,11 +259,15 @@ function CartaoItem({
   onAlterar,
   onRemover,
   onEditar,
+  prioridades,
+  onDefinirPrioridade,
 }: {
   item: ItemDespensa;
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
   onEditar: (id: string, nome: string, minimo: number, unidade: Unidade) => void;
+  prioridades: Prioridade[];
+  onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
 }) {
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState(item.nome);
@@ -434,6 +439,22 @@ function CartaoItem({
             <span className={`mt-2 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${item.prioridade === "nenhuma" ? "bg-secondary text-secondary-foreground" : item.prioridade === "alta" ? "bg-red-600 text-white" : item.prioridade === "urgente" ? "bg-orange-600 text-white" : item.prioridade === "normal" ? "bg-blue-600 text-white" : item.prioridade === "baixa" ? "bg-emerald-600 text-white" : "bg-violet-600 text-white"}`}>
               {item.prioridade === "nenhuma" ? "Sem prioridade" : `Prioridade: ${{ urgente: "Urgente", alta: "Alta", normal: "Normal", baixa: "Baixa" }[item.prioridade] || item.prioridade.replace(/-/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("pt-BR"))}`}
             </span>
+            <label className="mt-2 block max-w-56">
+              <span className="mb-1 block text-xs font-semibold text-muted-foreground">Alterar prioridade</span>
+              <select
+                value={item.prioridade}
+                onChange={(e) => onDefinirPrioridade(item.id, e.target.value as Prioridade)}
+                aria-label={`Alterar prioridade de ${item.nome}`}
+                className="min-h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="nenhuma">Sem prioridade</option>
+                {prioridades.map((prioridade) => (
+                  <option key={prioridade} value={prioridade}>
+                    {prioridade.charAt(0).toLocaleUpperCase("pt-BR") + prioridade.slice(1).replace(/-/g, " ")}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           <SeloStatus item={item} />
         </div>
@@ -533,6 +554,7 @@ function Despensa({
   onEditar,
   onAdicionar,
   prioridades,
+  onDefinirPrioridade,
 }: {
   itens: ItemDespensa[];
   onAlterar: (id: string, delta: number) => void;
@@ -546,6 +568,7 @@ function Despensa({
     prioridade: Prioridade,
   ) => void;
   prioridades: Prioridade[];
+  onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
 }) {
   return (
     <div className="space-y-8">
@@ -568,6 +591,8 @@ function Despensa({
                   onAlterar={onAlterar}
                   onRemover={onRemover}
                   onEditar={onEditar}
+                  prioridades={prioridades}
+                  onDefinirPrioridade={onDefinirPrioridade}
                 />
               ))}
             </ul>
