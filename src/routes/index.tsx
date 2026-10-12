@@ -50,6 +50,8 @@ export const Route = createFileRoute("/")({
 
 type Aba = "despensa" | "compras";
 
+const BANNER_PADRAO = "https://i.imgur.com/ihOcMO0.jpeg";
+
 function PaginaDespensa() {
   const [itens, setItens] = useState<ItemDespensa[]>([]);
   const [aba, setAba] = useState<Aba>("despensa");
@@ -66,7 +68,7 @@ function PaginaDespensa() {
     setItens(carregarItens());
     setPrioridades(carregarPrioridades());
     try {
-      setBanner(window.localStorage.getItem("despensa-banner-v1") || "");
+      setBanner(window.localStorage.getItem("despensa-banner-v2") || BANNER_PADRAO);
     } catch { /* inicia sem banner se o armazenamento estiver indisponível */ }
     try {
       const datasSalvas = JSON.parse(window.localStorage.getItem("despensa-datas-gerais-v1") || "{}");
@@ -154,7 +156,7 @@ function PaginaDespensa() {
     leitor.onload = () => {
       const imagem = typeof leitor.result === "string" ? leitor.result : "";
       try {
-        window.localStorage.setItem("despensa-banner-v1", imagem);
+        window.localStorage.setItem("despensa-banner-v2", imagem);
         setBanner(imagem);
       } catch {
         setErroBanner("Não foi possível salvar essa imagem. Escolha uma imagem menor.");
@@ -165,8 +167,8 @@ function PaginaDespensa() {
   };
 
   const removerBanner = () => {
-    try { window.localStorage.removeItem("despensa-banner-v1"); } catch { /* armazenamento indisponível */ }
-    setBanner("");
+    try { window.localStorage.removeItem("despensa-banner-v2"); } catch { /* armazenamento indisponível */ }
+    setBanner(BANNER_PADRAO);
     setErroBanner("");
     if (campoBannerRef.current) campoBannerRef.current.value = "";
   };
@@ -194,8 +196,8 @@ function PaginaDespensa() {
             ) : (
               <div className="flex min-h-24 flex-col items-center justify-center gap-1 px-4 py-5 text-center text-muted-foreground">
                 <Package className="h-6 w-6" aria-hidden="true" />
-                <p className="text-sm font-semibold">Espaço para seu banner</p>
-                <p className="text-xs">Adicione uma imagem para personalizar o topo do aplicativo</p>
+                <p className="text-sm font-semibold">Banner do Despensa Pacatito</p>
+                <p className="text-xs">Sua imagem padrão está sendo carregada</p>
               </div>
             )}
             <div className="flex flex-wrap items-center justify-center gap-2 border-t border-border p-3">
