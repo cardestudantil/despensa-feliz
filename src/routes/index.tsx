@@ -411,7 +411,7 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
   const listaCompras = useMemo(() => itens.filter(precisaComprar), [itens]);
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-dvh bg-green-50">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-5">
           <Package className="h-5 w-5 text-primary" aria-hidden="true" />
@@ -1282,7 +1282,7 @@ function ItemCompra({
         <h3 className="text-[150%] font-bold text-card-foreground">{item.nome}</h3>
       </div>
       <p className="mt-2 text-lg font-extrabold text-foreground">
-        Para repor até o mínimo: {item.quantidade >= item.minimo ? "NO MÍNIMO" : `${Math.max(0, item.minimo - item.quantidade)} ${rotuloUnidade(item.unidade)}`}
+        Estoque minimo
       </p>
       <div className="mt-3">
         <label htmlFor={`quantidade-comprada-${item.id}`} className="mb-1 block text-base font-semibold text-foreground">
