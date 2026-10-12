@@ -329,7 +329,6 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
     categoria: Categoria,
     minimo: number,
     unidade: Unidade,
-    prioridade: Prioridade,
     dataCompra: string,
   ) => {
     setItens((atual) => [
