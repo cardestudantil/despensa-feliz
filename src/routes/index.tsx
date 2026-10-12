@@ -356,6 +356,7 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
     categoria: Categoria,
     minimo: number,
     unidade: Unidade,
+    prioridade: Prioridade,
     dataCompra: string,
     foto?: string,
   ) => {
@@ -368,7 +369,7 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
         quantidade: 0,
         minimo,
         unidade,
-        prioridade: calcularPrioridadeEstoque({ quantidade: 0, minimo }),
+        prioridade,
         dataCompra,
         foto,
       },
@@ -932,7 +933,7 @@ function Despensa({
   itens: ItemDespensa[];
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade, dataCompra: string) => void;
+  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade, dataCompra: string, foto?: string) => void;
   onReordenar: (idOrigem: string, idDestino: string) => void;
   onAdicionar: (
     nome: string,
