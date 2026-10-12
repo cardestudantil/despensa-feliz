@@ -112,5 +112,5 @@ export function salvarItens(itens: ItemDespensa[]) {
 }
 
 export function precisaComprar(item: ItemDespensa): boolean {
-  return item.quantidade <= item.minimo;
+  return item.quantidade < item.minimo;
 }
