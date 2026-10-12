@@ -134,6 +134,7 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
   const [prioridades, setPrioridades] = useState<Prioridade[]>([]);
   const [dataConferencia, setDataConferencia] = useState("");
   const [dataUltimaCompra, setDataUltimaCompra] = useState("");
+  const [mensagemDatas, setMensagemDatas] = useState("");
   const datasRef = useRef({ dataConferencia: "", dataUltimaCompra: "" });
   const [banner, setBanner] = useState("");
   const [erroBanner, setErroBanner] = useState("");
@@ -156,6 +157,25 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
     } catch { /* inicia sem datas se o armazenamento estiver indisponível */ }
     setCarregado(true);
   }, []);
+
+  const salvarDatasManualmente = async () => {
+    const datas = { dataConferencia, dataUltimaCompra };
+    try {
+      window.localStorage.setItem("despensa-datas-gerais-v1", JSON.stringify(datas));
+      salvarItens(itens);
+      salvarPrioridades(prioridades);
+      if (usuarioId) {
+        const atual: DadosDespensa = { itens, prioridades, datas };
+        await salvarDespensa(usuarioId, atual);
+        ultimoConhecido.current = serializar(atual);
+        setSincronizado(true);
+        setStatusSync("");
+      }
+      setMensagemDatas("Datas salvas com sucesso!");
+    } catch {
+      setMensagemDatas("Não foi possível salvar as datas online. Confira sua conexão e tente novamente.");
+    }
+  };
 
   const atualizarDataGeral = (campo: "dataConferencia" | "dataUltimaCompra", valor: string) => {
     const novasDatas = {
@@ -389,11 +409,18 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
         <div className="mx-auto grid max-w-3xl grid-cols-1 gap-3 px-4 pb-4 sm:grid-cols-2">
           <div className="rounded-lg border border-border bg-background p-3">
             <label htmlFor="data-conferencia-geral" className="mb-1 block text-sm font-semibold text-foreground">Data de conferência do estoque</label>
-            <input id="data-conferencia-geral" type="date" value={dataConferencia} onChange={(e) => atualizarDataGeral("dataConferencia", e.target.value)} className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            <input id="data-conferencia-geral" type="date" value={dataConferencia} onChange={(e) => { atualizarDataGeral("dataConferencia", e.target.value); setMensagemDatas(""); }} className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
           <div className="rounded-lg border border-border bg-background p-3">
             <label htmlFor="data-ultima-compra-geral" className="mb-1 block text-sm font-semibold text-foreground">Data da última compra</label>
-            <input id="data-ultima-compra-geral" type="date" value={dataUltimaCompra} onChange={(e) => atualizarDataGeral("dataUltimaCompra", e.target.value)} className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            <input id="data-ultima-compra-geral" type="date" value={dataUltimaCompra} onChange={(e) => { atualizarDataGeral("dataUltimaCompra", e.target.value); setMensagemDatas(""); }} className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+          <div className="sm:col-span-2">
+            <button type="button" onClick={salvarDatasManualmente} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-base font-bold text-primary-foreground transition-colors hover:bg-primary/90">
+              <Check className="h-5 w-5" aria-hidden="true" />
+              💾 Salvar datas
+            </button>
+            {mensagemDatas && <p role="status" className="mt-2 text-center text-sm font-semibold text-foreground">{mensagemDatas}</p>}
           </div>
         </div>
       </header>
