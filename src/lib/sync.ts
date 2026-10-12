@@ -17,8 +17,8 @@ export function normalizar(linha: { itens: unknown; prioridades: unknown; datas:
     itens: Array.isArray(linha.itens) ? (linha.itens as ItemDespensa[]) : [],
     prioridades: Array.isArray(linha.prioridades) ? (linha.prioridades as Prioridade[]) : [],
     datas: {
-      dataConferencia: typeof datas.dataConferencia === "string" ? datas.dataConferencia : "",
-      dataUltimaCompra: typeof datas.dataUltimaCompra === "string" ? datas.dataUltimaCompra : "",
+      dataConferencia: typeof datas["dataConferencia"] === "string" ? datas["dataConferencia"] : "",
+      dataUltimaCompra: typeof datas["dataUltimaCompra"] === "string" ? datas["dataUltimaCompra"] : "",
     },
   };
 }
