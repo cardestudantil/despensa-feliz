@@ -158,4 +158,7 @@
   h3 {
     line-height: 1.2;
   }
+  #lovable-badge{
+    display: none !important;
+  }
 }
