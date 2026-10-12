@@ -1195,7 +1195,7 @@ function ItemCompra({
 
   return (
     <li className="rounded-xl border border-border bg-card p-4">
-      <h3 className="text-undefined font-bold text-card-foreground">
+      <h3 className="text-[150%] font-bold text-card-foreground">
         {item.nome}
       </h3>
       <p className="mt-2 text-lg font-extrabold text-foreground">
