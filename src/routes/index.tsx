@@ -93,10 +93,12 @@ function PaginaDespensa() {
     nome: string,
     minimo: number,
     unidade: Unidade,
+    dataConferencia: string,
+    dataUltimaCompra: string,
   ) => {
     setItens((atual) =>
       atual.map((item) =>
-        item.id === id ? { ...item, nome, minimo, unidade } : item,
+        item.id === id ? { ...item, nome, minimo, unidade, dataConferencia, dataUltimaCompra } : item,
       ),
     );
   };
@@ -107,6 +109,8 @@ function PaginaDespensa() {
     minimo: number,
     unidade: Unidade,
     prioridade: Prioridade,
+    dataConferencia: string,
+    dataUltimaCompra: string,
   ) => {
     setItens((atual) => [
       ...atual,
@@ -118,6 +122,8 @@ function PaginaDespensa() {
         minimo,
         unidade,
         prioridade,
+        dataConferencia,
+        dataUltimaCompra,
       },
     ]);
   };
@@ -227,7 +233,7 @@ function CartaoItem({
   item: ItemDespensa;
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade) => void;
+  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade, dataConferencia: string, dataUltimaCompra: string) => void;
   prioridades: Prioridade[];
   onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
 }) {
@@ -235,6 +241,8 @@ function CartaoItem({
   const [nome, setNome] = useState(item.nome);
   const [minimo, setMinimo] = useState(String(item.minimo));
   const [unidade, setUnidade] = useState<Unidade>(item.unidade);
+  const [dataConferencia, setDataConferencia] = useState(item.dataConferencia || "");
+  const [dataUltimaCompra, setDataUltimaCompra] = useState(item.dataUltimaCompra || "");
   const [erro, setErro] = useState("");
   const campoRef = useRef<HTMLInputElement>(null);
 
@@ -243,10 +251,12 @@ function CartaoItem({
     setNome(item.nome);
     setMinimo(String(item.minimo));
     setUnidade(item.unidade);
+    setDataConferencia(item.dataConferencia || "");
+    setDataUltimaCompra(item.dataUltimaCompra || "");
     setErro("");
     campoRef.current?.focus();
     campoRef.current?.select();
-  }, [editando, item.nome, item.minimo, item.unidade]);
+  }, [editando, item.nome, item.minimo, item.unidade, item.dataConferencia, item.dataUltimaCompra]);
 
   const ajustarMinimo = (delta: number) => {
     setMinimo((atual) =>
@@ -274,7 +284,7 @@ function CartaoItem({
       setErro("Informe a quantidade mínima ideal.");
       return;
     }
-    onEditar(item.id, nomeLimpo, Math.max(0, minimoNum), unidade);
+    onEditar(item.id, nomeLimpo, Math.max(0, minimoNum), unidade, dataConferencia, dataUltimaCompra);
     setEditando(false);
   }
 
@@ -410,6 +420,17 @@ function CartaoItem({
             </p>
           </div>
 
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label htmlFor={`editar-data-conferencia-${item.id}`} className="mb-1 block text-undefined font-semibold text-foreground">Data de conferência</label>
+              <input id={`editar-data-conferencia-${item.id}`} type="date" value={dataConferencia} onChange={(e) => setDataConferencia(e.target.value)} className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            </div>
+            <div>
+              <label htmlFor={`editar-data-compra-${item.id}`} className="mb-1 block text-undefined font-semibold text-foreground">Data da última compra</label>
+              <input id={`editar-data-compra-${item.id}`} type="date" value={dataUltimaCompra} onChange={(e) => setDataUltimaCompra(e.target.value)} className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            </div>
+          </div>
+
           {erro && (
             <p className="text-undefined font-semibold text-destructive" role="alert">
               {erro}
@@ -451,6 +472,12 @@ function CartaoItem({
             {item.minimo} {rotuloUnidade(item.unidade)}
           </strong>
         </p>
+      )}
+      {!editando && (item.dataConferencia || item.dataUltimaCompra) && (
+        <div className="mt-2 grid grid-cols-1 gap-1 text-sm text-muted-foreground sm:grid-cols-2">
+          {item.dataConferencia && <p>Data de conferência: <strong className="text-foreground">{item.dataConferencia.split("-").reverse().join("/")}</strong></p>}
+          {item.dataUltimaCompra && <p>Data da última compra: <strong className="text-foreground">{item.dataUltimaCompra.split("-").reverse().join("/")}</strong></p>}
+        </div>
       )}
 
       <div className="mt-3 flex items-center gap-3">
@@ -550,6 +577,8 @@ function Despensa({
     minimo: number,
     unidade: Unidade,
     prioridade: Prioridade,
+    dataConferencia: string,
+    dataUltimaCompra: string,
   ) => void;
   prioridades: Prioridade[];
   onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
@@ -608,6 +637,8 @@ function FormularioNovoItem({
   const [unidade, setUnidade] = useState<Unidade>("unidade");
   const [temPrioridade, setTemPrioridade] = useState(false);
   const [prioridadeNova, setPrioridadeNova] = useState<Prioridade>("normal");
+  const [dataConferencia, setDataConferencia] = useState("");
+  const [dataUltimaCompra, setDataUltimaCompra] = useState("");
   const [mensagem, setMensagem] = useState("");
 
   const enviar = (e: React.FormEvent) => {
@@ -618,9 +649,11 @@ function FormularioNovoItem({
       setMensagem("Escreva o nome do produto.");
       return;
     }
-    onAdicionar(nomeLimpo, categoria, minimoNum, unidade, temPrioridade ? prioridadeNova : "nenhuma");
+    onAdicionar(nomeLimpo, categoria, minimoNum, unidade, temPrioridade ? prioridadeNova : "nenhuma", dataConferencia, dataUltimaCompra);
     setNome("");
     setMinimo("1");
+    setDataConferencia("");
+    setDataUltimaCompra("");
     setMensagem(`"${nomeLimpo}" foi adicionado à despensa!`);
   };
 
@@ -696,6 +729,17 @@ function FormularioNovoItem({
             Quando a quantidade em casa chegar nesse valor, o produto entra na
             lista de compras.
           </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="nova-data-conferencia" className="mb-1 block text-undefined font-semibold text-foreground">Data de conferência</label>
+            <input id="nova-data-conferencia" type="date" value={dataConferencia} onChange={(e) => setDataConferencia(e.target.value)} className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+          <div>
+            <label htmlFor="nova-data-compra" className="mb-1 block text-undefined font-semibold text-foreground">Data da última compra</label>
+            <input id="nova-data-compra" type="date" value={dataUltimaCompra} onChange={(e) => setDataUltimaCompra(e.target.value)} className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
         </div>
 
         <div>
