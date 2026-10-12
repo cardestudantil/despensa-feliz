@@ -384,10 +384,10 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-5">
           <Package className="h-5 w-5 text-primary" aria-hidden="true" />
           <div className="min-w-0 flex-1">
-            <h1 className="text-undefined font-bold leading-tight text-foreground sm:text-undefined">
+            <h1 className="text-[150%] font-bold leading-tight text-foreground">
               Despensa Pacatito
             </h1>
-            <p className="text-undefined text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               Controle do mês.
             </p>
           </div>
