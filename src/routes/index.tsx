@@ -1282,7 +1282,7 @@ function ItemCompra({
         <h3 className="text-[150%] font-bold text-card-foreground">{item.nome}</h3>
       </div>
       <p className="mt-2 text-lg font-extrabold text-foreground">
-        Estoque minimo
+        Esta quantidade é para atender o MINÍMO.
       </p>
       <div className="mt-3">
         <label htmlFor={`quantidade-comprada-${item.id}`} className="mb-1 block text-base font-semibold text-foreground">
