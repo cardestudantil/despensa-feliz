@@ -144,7 +144,7 @@ function PaginaDespensa() {
         className="sticky top-0 z-10 border-b border-border bg-background"
         aria-label="Seções do aplicativo"
       >
-        <div className="mx-auto grid max-w-3xl grid-cols-3 gap-2 px-4 py-3">
+        <div className="mx-auto grid max-w-3xl grid-cols-2 gap-2 px-4 py-3">
           <button
             type="button"
             onClick={() => setAba("despensa")}
@@ -193,8 +193,6 @@ function PaginaDespensa() {
             prioridades={prioridades}
             onDefinirPrioridade={definirPrioridade}
           />
-        ) : aba === "compras" ? (
-          <ListaCompras itens={listaCompras} />
         ) : (
           <ListaCompras itens={listaCompras} />
         )}
