@@ -7,6 +7,7 @@ import {
   ShoppingCart,
   Package,
   ClipboardList,
+  GripVertical,
   Pencil,
   Check,
   X,
@@ -110,6 +111,28 @@ function PaginaDespensa() {
 
   const removerItem = (id: string) => {
     setItens((atual) => atual.filter((item) => item.id !== id));
+  };
+
+  const reordenarItem = (idOrigem: string, idDestino: string) => {
+    if (idOrigem === idDestino) return;
+    setItens((atual) => {
+      const origem = atual.find((item) => item.id === idOrigem);
+      const destino = atual.find((item) => item.id === idDestino);
+      if (!origem || !destino || origem.categoria !== destino.categoria) return atual;
+
+      const daCategoria = atual.filter((item) => item.categoria === origem.categoria);
+      const indiceOrigem = daCategoria.findIndex((item) => item.id === idOrigem);
+      const indiceDestino = daCategoria.findIndex((item) => item.id === idDestino);
+      if (indiceOrigem < 0 || indiceDestino < 0) return atual;
+
+      const reorganizados = [...daCategoria];
+      const [movido] = reorganizados.splice(indiceOrigem, 1);
+      reorganizados.splice(indiceDestino, 0, movido);
+      let indice = 0;
+      return atual.map((item) =>
+        item.categoria === origem.categoria ? reorganizados[indice++] : item,
+      );
+    });
   };
 
   const editarItem = (id: string, nome: string, minimo: number, unidade: Unidade) => {
@@ -265,6 +288,7 @@ function PaginaDespensa() {
             onRemover={removerItem}
             onEditar={editarItem}
             onAdicionar={adicionarItem}
+            onReordenar={reordenarItem}
             prioridades={prioridades}
             onDefinirPrioridade={definirPrioridade}
           />
@@ -296,6 +320,7 @@ function CartaoItem({
   onAlterar,
   onRemover,
   onEditar,
+  onReordenar,
   prioridades,
   onDefinirPrioridade,
 }: {
@@ -303,6 +328,7 @@ function CartaoItem({
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
   onEditar: (id: string, nome: string, minimo: number, unidade: Unidade) => void;
+  onReordenar: (idOrigem: string, idDestino: string) => void;
   prioridades: Prioridade[];
   onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
 }) {
@@ -355,6 +381,22 @@ function CartaoItem({
 
   return (
     <li
+      draggable={!editando}
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", item.id);
+      }}
+      onDragOver={(e) => {
+        if (!editando) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+        }
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        const idOrigem = e.dataTransfer.getData("text/plain");
+        if (idOrigem) onReordenar(idOrigem, item.id);
+      }}
       className={`rounded-xl border-2 p-4 shadow-sm transition-colors ${
         item.prioridade === "alta"
           ? "border-red-500 bg-red-50 dark:bg-red-950/40"
@@ -494,6 +536,10 @@ function CartaoItem({
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">
+            <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+              <GripVertical className="h-4 w-4" aria-hidden="true" />
+              <span>Arraste para reorganizar</span>
+            </div>
             <h3 className="text-undefined font-bold text-card-foreground">{item.nome}</h3>
             <span className={`mt-2 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${item.prioridade === "nenhuma" ? "bg-secondary text-secondary-foreground" : item.prioridade === "alta" ? "bg-red-600 text-white" : item.prioridade === "urgente" ? "bg-orange-600 text-white" : item.prioridade === "normal" ? "bg-blue-600 text-white" : item.prioridade === "baixa" ? "bg-emerald-600 text-white" : "bg-violet-600 text-white"}`}>
               {item.prioridade === "nenhuma" ? "Sem prioridade" : `Prioridade: ${{ urgente: "Urgente", alta: "Alta", normal: "Normal", baixa: "Baixa" }[item.prioridade] || item.prioridade.replace(/-/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("pt-BR"))}`}
@@ -611,6 +657,7 @@ function Despensa({
   onRemover,
   onEditar,
   onAdicionar,
+  onReordenar,
   prioridades,
   onDefinirPrioridade,
 }: {
@@ -618,6 +665,7 @@ function Despensa({
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
   onEditar: (id: string, nome: string, minimo: number, unidade: Unidade) => void;
+  onReordenar: (idOrigem: string, idDestino: string) => void;
   onAdicionar: (
     nome: string,
     categoria: Categoria,
@@ -649,6 +697,7 @@ function Despensa({
                   onAlterar={onAlterar}
                   onRemover={onRemover}
                   onEditar={onEditar}
+                  onReordenar={onReordenar}
                   prioridades={prioridades}
                   onDefinirPrioridade={onDefinirPrioridade}
                 />
