@@ -218,7 +218,7 @@ function PaginaDespensa() {
               Despensa Pacatito
             </h1>
             <p className="text-undefined text-muted-foreground">
-              Controle o que tem em casa e o que precisa comprar
+              Controle o que tem em casa e o que precisa comprar.
             </p>
           </div>
         </div>
