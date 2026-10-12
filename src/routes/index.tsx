@@ -60,7 +60,7 @@ function PaginaDespensa() {
   const [prioridades, setPrioridades] = useState<Prioridade[]>([]);
   const [dataConferencia, setDataConferencia] = useState("");
   const [dataUltimaCompra, setDataUltimaCompra] = useState("");
-  const [datasCarregadas, setDatasCarregadas] = useState(false);
+  const datasRef = useRef({ dataConferencia: "", dataUltimaCompra: "" });
   const [banner, setBanner] = useState("");
   const [erroBanner, setErroBanner] = useState("");
   const campoBannerRef = useRef<HTMLInputElement>(null);
@@ -73,31 +73,28 @@ function PaginaDespensa() {
     } catch { /* inicia sem banner se o armazenamento estiver indisponível */ }
     try {
       const datasSalvas = JSON.parse(window.localStorage.getItem("despensa-datas-gerais-v1") || "{}");
-      if (typeof datasSalvas.dataConferencia === "string") setDataConferencia(datasSalvas.dataConferencia);
-      if (typeof datasSalvas.dataUltimaCompra === "string") setDataUltimaCompra(datasSalvas.dataUltimaCompra);
+      datasRef.current = {
+        dataConferencia: typeof datasSalvas?.dataConferencia === "string" ? datasSalvas.dataConferencia : "",
+        dataUltimaCompra: typeof datasSalvas?.dataUltimaCompra === "string" ? datasSalvas.dataUltimaCompra : "",
+      };
+      setDataConferencia(datasRef.current.dataConferencia);
+      setDataUltimaCompra(datasRef.current.dataUltimaCompra);
     } catch { /* inicia sem datas se o armazenamento estiver indisponível */ }
-    setDatasCarregadas(true);
     setCarregado(true);
   }, []);
 
   const atualizarDataGeral = (campo: "dataConferencia" | "dataUltimaCompra", valor: string) => {
     const novasDatas = {
-      dataConferencia: campo === "dataConferencia" ? valor : dataConferencia,
-      dataUltimaCompra: campo === "dataUltimaCompra" ? valor : dataUltimaCompra,
+      ...datasRef.current,
+      [campo]: valor,
     };
+    datasRef.current = novasDatas;
     if (campo === "dataConferencia") setDataConferencia(valor);
     else setDataUltimaCompra(valor);
     try {
       window.localStorage.setItem("despensa-datas-gerais-v1", JSON.stringify(novasDatas));
     } catch { /* mantém a alteração na tela se o armazenamento estiver indisponível */ }
   };
-
-  useEffect(() => {
-    if (!datasCarregadas) return;
-    try {
-      window.localStorage.setItem("despensa-datas-gerais-v1", JSON.stringify({ dataConferencia, dataUltimaCompra }));
-    } catch { /* armazenamento indisponível */ }
-  }, [dataConferencia, dataUltimaCompra, datasCarregadas]);
 
   useEffect(() => {
     if (carregado) salvarItens(itens);
