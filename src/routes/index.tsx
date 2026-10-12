@@ -1155,32 +1155,76 @@ function ListaCompras({ itens, onMarcarComprado }: { itens: ItemDespensa[]; onMa
         Lista de compras
       </h2>
       <ul className="space-y-3">
-        {itens.map((item) => {
-          const quantidadeComprar = Math.max(0, item.minimo - item.quantidade);
-
-          return (
-            <li
-              key={item.id}
-              className="rounded-xl border border-border bg-card p-4"
-            >
-              <h3 className="text-undefined font-bold text-card-foreground">
-                {item.nome}
-              </h3>
-              <p className="mt-2 text-lg font-extrabold text-foreground">
-                Comprar: {quantidadeComprar} {rotuloUnidade(item.unidade)}
-              </p>
-              <button
-                type="button"
-                onClick={() => onMarcarComprado(item.id, quantidadeComprar)}
-                className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 text-base font-bold text-white transition-colors hover:bg-emerald-700"
-              >
-                <Check className="h-5 w-5" aria-hidden="true" />
-                Marcar como comprado
-              </button>
-            </li>
-          );
-        })}
+        {itens.map((item) => (
+          <ItemCompra
+            key={item.id}
+            item={item}
+            onMarcarComprado={onMarcarComprado}
+          />
+        ))}
       </ul>
     </section>
+  );
+}
+
+function ItemCompra({
+  item,
+  onMarcarComprado,
+}: {
+  item: ItemDespensa;
+  onMarcarComprado: (id: string, quantidade: number) => void;
+}) {
+  const quantidadeSugerida = Math.max(1, item.minimo - item.quantidade);
+  const [quantidadeComprada, setQuantidadeComprada] = useState(String(quantidadeSugerida));
+  const [erro, setErro] = useState("");
+
+  const registrarCompra = () => {
+    const quantidade = Number(quantidadeComprada);
+    if (!Number.isFinite(quantidade) || quantidade <= 0) {
+      setErro("Digite uma quantidade maior que zero.");
+      return;
+    }
+    if (item.unidade === "unidade" && !Number.isInteger(quantidade)) {
+      setErro("Para itens por unidade, informe um número inteiro.");
+      return;
+    }
+    onMarcarComprado(item.id, quantidade);
+    setErro("");
+    setQuantidadeComprada("");
+  };
+
+  return (
+    <li className="rounded-xl border border-border bg-card p-4">
+      <h3 className="text-undefined font-bold text-card-foreground">
+        {item.nome}
+      </h3>
+      <p className="mt-2 text-lg font-extrabold text-foreground">
+        Para repor até o mínimo: {Math.max(0, item.minimo - item.quantidade)} {rotuloUnidade(item.unidade)}
+      </p>
+      <div className="mt-3">
+        <label htmlFor={`quantidade-comprada-${item.id}`} className="mb-1 block text-base font-semibold text-foreground">
+          Quanto foi comprado? ({rotuloUnidade(item.unidade)})
+        </label>
+        <input
+          id={`quantidade-comprada-${item.id}`}
+          type="number"
+          min="0.01"
+          step={item.unidade === "unidade" ? "1" : "any"}
+          inputMode="decimal"
+          value={quantidadeComprada}
+          onChange={(e) => { setQuantidadeComprada(e.target.value); setErro(""); }}
+          className="min-h-12 w-full rounded-lg border border-input bg-background px-3 text-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+        />
+      </div>
+      {erro && <p role="alert" className="mt-2 text-sm font-semibold text-destructive">{erro}</p>}
+      <button
+        type="button"
+        onClick={registrarCompra}
+        className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 text-base font-bold text-white transition-colors hover:bg-emerald-700"
+      >
+        <Check className="h-5 w-5" aria-hidden="true" />
+        Registrar compra e atualizar estoque
+      </button>
+    </li>
   );
 }
