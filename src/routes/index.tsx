@@ -352,6 +352,28 @@ function CartaoItem({
 
           <div>
             <label
+              htmlFor={`editar-prioridade-${item.id}`}
+              className="mb-1 block text-undefined font-semibold text-foreground"
+            >
+              Prioridade do produto
+            </label>
+            <select
+              id={`editar-prioridade-${item.id}`}
+              value={item.prioridade}
+              onChange={(e) => onDefinirPrioridade(item.id, e.target.value as Prioridade)}
+              className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="nenhuma">Sem prioridade</option>
+              {prioridades.map((prioridade) => (
+                <option key={prioridade} value={prioridade}>
+                  {prioridade.charAt(0).toLocaleUpperCase("pt-BR") + prioridade.slice(1).replace(/-/g, " ")}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label
               htmlFor={`editar-minimo-${item.id}`}
               className="mb-1 block text-undefined font-semibold text-foreground"
             >
