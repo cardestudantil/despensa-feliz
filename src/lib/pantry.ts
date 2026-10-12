@@ -27,6 +27,8 @@ export interface ItemDespensa {
   minimo: number;
   unidade: Unidade;
   prioridade: Prioridade;
+  dataConferencia?: string;
+  dataUltimaCompra?: string;
 }
 
 export const CATEGORIAS: Categoria[] = ["Alimentos", "Limpeza", "Higiene"];
