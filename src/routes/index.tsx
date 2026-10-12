@@ -482,7 +482,7 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
             onDefinirPrioridade={definirPrioridade}
           />
         ) : (
-          <ListaCompras itens={listaCompras} onMarcarComprado={(id, quantidade) => setItens((atual) => atual.map((item) => {
+          <ListaCompras itens={listaCompras} onVoltar={() => setAba("despensa")} onMarcarComprado={(id, quantidade) => setItens((atual) => atual.map((item) => {
             if (item.id !== id) return item;
             const novaQuantidade = item.quantidade + quantidade;
             return { ...item, quantidade: novaQuantidade, prioridade: calcularPrioridadeEstoque({ quantidade: novaQuantidade, minimo: item.minimo }) };
@@ -1128,7 +1128,7 @@ function FormularioNovoItem({
   );
 }
 
-function ListaCompras({ itens, onMarcarComprado }: { itens: ItemDespensa[]; onMarcarComprado: (id: string, quantidade: number) => void }) {
+function ListaCompras({ itens, onVoltar, onMarcarComprado }: { itens: ItemDespensa[]; onVoltar: () => void; onMarcarComprado: (id: string, quantidade: number) => void }) {
   if (itens.length === 0) {
     return (
       <div className="rounded-lg border border-border bg-card p-8 text-center">
@@ -1148,6 +1148,9 @@ function ListaCompras({ itens, onMarcarComprado }: { itens: ItemDespensa[]; onMa
 
   return (
     <section aria-labelledby="lista-compras-titulo">
+      <button type="button" onClick={onVoltar} className="mb-4 flex min-h-12 items-center justify-center gap-2 rounded-lg bg-secondary px-4 text-base font-bold text-secondary-foreground transition-colors hover:bg-accent">
+        ← Voltar para a despensa
+      </button>
       <h2
         id="lista-compras-titulo"
         className="mb-4 text-undefined font-bold text-foreground"
