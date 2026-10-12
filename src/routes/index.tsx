@@ -55,12 +55,28 @@ function PaginaDespensa() {
   const [aba, setAba] = useState<Aba>("despensa");
   const [carregado, setCarregado] = useState(false);
   const [prioridades, setPrioridades] = useState<Prioridade[]>([]);
+  const [dataConferencia, setDataConferencia] = useState("");
+  const [dataUltimaCompra, setDataUltimaCompra] = useState("");
+  const [datasCarregadas, setDatasCarregadas] = useState(false);
 
   useEffect(() => {
     setItens(carregarItens());
     setPrioridades(carregarPrioridades());
+    try {
+      const datasSalvas = JSON.parse(window.localStorage.getItem("despensa-datas-gerais-v1") || "{}");
+      if (typeof datasSalvas.dataConferencia === "string") setDataConferencia(datasSalvas.dataConferencia);
+      if (typeof datasSalvas.dataUltimaCompra === "string") setDataUltimaCompra(datasSalvas.dataUltimaCompra);
+    } catch { /* inicia sem datas se o armazenamento estiver indisponível */ }
+    setDatasCarregadas(true);
     setCarregado(true);
   }, []);
+
+  useEffect(() => {
+    if (!datasCarregadas) return;
+    try {
+      window.localStorage.setItem("despensa-datas-gerais-v1", JSON.stringify({ dataConferencia, dataUltimaCompra }));
+    } catch { /* armazenamento indisponível */ }
+  }, [dataConferencia, dataUltimaCompra, datasCarregadas]);
 
   useEffect(() => {
     if (carregado) salvarItens(itens);
@@ -88,17 +104,10 @@ function PaginaDespensa() {
     setItens((atual) => atual.filter((item) => item.id !== id));
   };
 
-  const editarItem = (
-    id: string,
-    nome: string,
-    minimo: number,
-    unidade: Unidade,
-    dataConferencia: string,
-    dataUltimaCompra: string,
-  ) => {
+  const editarItem = (id: string, nome: string, minimo: number, unidade: Unidade) => {
     setItens((atual) =>
       atual.map((item) =>
-        item.id === id ? { ...item, nome, minimo, unidade, dataConferencia, dataUltimaCompra } : item,
+        item.id === id ? { ...item, nome, minimo, unidade } : item,
       ),
     );
   };
@@ -109,8 +118,6 @@ function PaginaDespensa() {
     minimo: number,
     unidade: Unidade,
     prioridade: Prioridade,
-    dataConferencia: string,
-    dataUltimaCompra: string,
   ) => {
     setItens((atual) => [
       ...atual,
@@ -122,8 +129,6 @@ function PaginaDespensa() {
         minimo,
         unidade,
         prioridade,
-        dataConferencia,
-        dataUltimaCompra,
       },
     ]);
   };
@@ -135,13 +140,23 @@ function PaginaDespensa() {
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-5">
           <Package className="h-5 w-5 text-primary" aria-hidden="true" />
-          <div>
+          <div className="min-w-0 flex-1">
             <h1 className="text-undefined font-bold leading-tight text-foreground sm:text-undefined">
               Despensa Pacatito
             </h1>
             <p className="text-undefined text-muted-foreground">
               Controle o que tem em casa e o que precisa comprar
             </p>
+          </div>
+        </div>
+        <div className="mx-auto grid max-w-3xl grid-cols-1 gap-3 px-4 pb-4 sm:grid-cols-2">
+          <div className="rounded-lg border border-border bg-background p-3">
+            <label htmlFor="data-conferencia-geral" className="mb-1 block text-sm font-semibold text-foreground">Data de conferência do estoque</label>
+            <input id="data-conferencia-geral" type="date" value={dataConferencia} onChange={(e) => setDataConferencia(e.target.value)} className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+          <div className="rounded-lg border border-border bg-background p-3">
+            <label htmlFor="data-ultima-compra-geral" className="mb-1 block text-sm font-semibold text-foreground">Data da última compra</label>
+            <input id="data-ultima-compra-geral" type="date" value={dataUltimaCompra} onChange={(e) => setDataUltimaCompra(e.target.value)} className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
         </div>
       </header>
@@ -233,7 +248,7 @@ function CartaoItem({
   item: ItemDespensa;
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade, dataConferencia: string, dataUltimaCompra: string) => void;
+  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade) => void;
   prioridades: Prioridade[];
   onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
 }) {
@@ -241,8 +256,6 @@ function CartaoItem({
   const [nome, setNome] = useState(item.nome);
   const [minimo, setMinimo] = useState(String(item.minimo));
   const [unidade, setUnidade] = useState<Unidade>(item.unidade);
-  const [dataConferencia, setDataConferencia] = useState(item.dataConferencia || "");
-  const [dataUltimaCompra, setDataUltimaCompra] = useState(item.dataUltimaCompra || "");
   const [erro, setErro] = useState("");
   const campoRef = useRef<HTMLInputElement>(null);
 
@@ -251,12 +264,10 @@ function CartaoItem({
     setNome(item.nome);
     setMinimo(String(item.minimo));
     setUnidade(item.unidade);
-    setDataConferencia(item.dataConferencia || "");
-    setDataUltimaCompra(item.dataUltimaCompra || "");
     setErro("");
     campoRef.current?.focus();
     campoRef.current?.select();
-  }, [editando, item.nome, item.minimo, item.unidade, item.dataConferencia, item.dataUltimaCompra]);
+  }, [editando, item.nome, item.minimo, item.unidade]);
 
   const ajustarMinimo = (delta: number) => {
     setMinimo((atual) =>
@@ -284,7 +295,7 @@ function CartaoItem({
       setErro("Informe a quantidade mínima ideal.");
       return;
     }
-    onEditar(item.id, nomeLimpo, Math.max(0, minimoNum), unidade, dataConferencia, dataUltimaCompra);
+    onEditar(item.id, nomeLimpo, Math.max(0, minimoNum), unidade);
     setEditando(false);
   }
 
@@ -420,17 +431,6 @@ function CartaoItem({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label htmlFor={`editar-data-conferencia-${item.id}`} className="mb-1 block text-undefined font-semibold text-foreground">Data de conferência</label>
-              <input id={`editar-data-conferencia-${item.id}`} type="date" value={dataConferencia} onChange={(e) => setDataConferencia(e.target.value)} className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-            </div>
-            <div>
-              <label htmlFor={`editar-data-compra-${item.id}`} className="mb-1 block text-undefined font-semibold text-foreground">Data da última compra</label>
-              <input id={`editar-data-compra-${item.id}`} type="date" value={dataUltimaCompra} onChange={(e) => setDataUltimaCompra(e.target.value)} className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-            </div>
-          </div>
-
           {erro && (
             <p className="text-undefined font-semibold text-destructive" role="alert">
               {erro}
@@ -473,13 +473,6 @@ function CartaoItem({
           </strong>
         </p>
       )}
-      {!editando && (item.dataConferencia || item.dataUltimaCompra) && (
-        <div className="mt-2 grid grid-cols-1 gap-1 text-sm text-muted-foreground sm:grid-cols-2">
-          {item.dataConferencia && <p>Data de conferência: <strong className="text-foreground">{item.dataConferencia.split("-").reverse().join("/")}</strong></p>}
-          {item.dataUltimaCompra && <p>Data da última compra: <strong className="text-foreground">{item.dataUltimaCompra.split("-").reverse().join("/")}</strong></p>}
-        </div>
-      )}
-
       <div className="mt-3 flex items-center gap-3">
         <button
           type="button"
@@ -570,15 +563,13 @@ function Despensa({
   itens: ItemDespensa[];
   onAlterar: (id: string, delta: number) => void;
   onRemover: (id: string) => void;
-  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade, dataConferencia: string, dataUltimaCompra: string) => void;
+  onEditar: (id: string, nome: string, minimo: number, unidade: Unidade) => void;
   onAdicionar: (
     nome: string,
     categoria: Categoria,
     minimo: number,
     unidade: Unidade,
     prioridade: Prioridade,
-    dataConferencia: string,
-    dataUltimaCompra: string,
   ) => void;
   prioridades: Prioridade[];
   onDefinirPrioridade: (id: string, prioridade: Prioridade) => void;
@@ -649,11 +640,9 @@ function FormularioNovoItem({
       setMensagem("Escreva o nome do produto.");
       return;
     }
-    onAdicionar(nomeLimpo, categoria, minimoNum, unidade, temPrioridade ? prioridadeNova : "nenhuma", dataConferencia, dataUltimaCompra);
+    onAdicionar(nomeLimpo, categoria, minimoNum, unidade, temPrioridade ? prioridadeNova : "nenhuma");
     setNome("");
     setMinimo("1");
-    setDataConferencia("");
-    setDataUltimaCompra("");
     setMensagem(`"${nomeLimpo}" foi adicionado à despensa!`);
   };
 
@@ -729,17 +718,6 @@ function FormularioNovoItem({
             Quando a quantidade em casa chegar nesse valor, o produto entra na
             lista de compras.
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="nova-data-conferencia" className="mb-1 block text-undefined font-semibold text-foreground">Data de conferência</label>
-            <input id="nova-data-conferencia" type="date" value={dataConferencia} onChange={(e) => setDataConferencia(e.target.value)} className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-          </div>
-          <div>
-            <label htmlFor="nova-data-compra" className="mb-1 block text-undefined font-semibold text-foreground">Data da última compra</label>
-            <input id="nova-data-compra" type="date" value={dataUltimaCompra} onChange={(e) => setDataUltimaCompra(e.target.value)} className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-          </div>
         </div>
 
         <div>
