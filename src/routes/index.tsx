@@ -661,10 +661,16 @@ function CartaoItem({
           <div className="rounded-lg border border-border p-3">
             <span className="mb-2 block font-semibold text-foreground">Foto do produto</span>
             {foto ? <img src={foto} alt={`Foto de ${item.nome}`} className="mb-3 h-24 w-24 rounded-lg border border-border object-cover" /> : <div className="mb-3 flex h-24 w-24 items-center justify-center rounded-lg bg-secondary text-muted-foreground"><Package className="h-8 w-8" aria-hidden="true" /></div>}
-            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-secondary px-4 font-semibold text-secondary-foreground">
-              <ImagePlus className="h-5 w-5" aria-hidden="true" /> {foto ? "Trocar foto" : "Adicionar foto"}
-              <input type="file" accept="image/*" className="sr-only" onChange={async (e) => { const campo = e.currentTarget; const arquivo = campo.files?.[0]; if (!arquivo) return; try { setFoto(await prepararFotoProduto(arquivo)); setErroFotoItem(""); } catch (erro) { setErroFotoItem(erro instanceof Error ? erro.message : "Não foi possível carregar a foto."); } campo.value = ""; }} />
-            </label>
+            <div className="flex flex-wrap gap-2">
+              <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 font-semibold text-primary-foreground">
+                <ImagePlus className="h-5 w-5" aria-hidden="true" /> Tirar foto
+                <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={async (e) => { const campo = e.currentTarget; const arquivo = campo.files?.[0]; if (!arquivo) return; try { setFoto(await prepararFotoProduto(arquivo)); setErroFotoItem(""); } catch (erro) { setErroFotoItem(erro instanceof Error ? erro.message : "Não foi possível carregar a foto."); } campo.value = ""; }} />
+              </label>
+              <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-secondary px-4 font-semibold text-secondary-foreground">
+                <ImagePlus className="h-5 w-5" aria-hidden="true" /> Escolher do dispositivo
+                <input type="file" accept="image/*" className="sr-only" onChange={async (e) => { const campo = e.currentTarget; const arquivo = campo.files?.[0]; if (!arquivo) return; try { setFoto(await prepararFotoProduto(arquivo)); setErroFotoItem(""); } catch (erro) { setErroFotoItem(erro instanceof Error ? erro.message : "Não foi possível carregar a foto."); } campo.value = ""; }} />
+              </label>
+            </div>
             {foto && <button type="button" onClick={() => { setFoto(""); setErroFotoItem(""); }} className="ml-2 min-h-11 rounded-lg px-3 font-semibold text-destructive">Remover foto</button>}
             {erroFotoItem && <p role="alert" className="mt-2 text-sm font-semibold text-destructive">{erroFotoItem}</p>}
             <p className="mt-2 text-xs text-muted-foreground">A foto será reduzida e sincronizada com sua conta.</p>
@@ -1060,10 +1066,16 @@ function FormularioNovoItem({
         <div className="rounded-lg border border-border p-3">
           <span className="mb-2 block font-semibold text-foreground">Foto do produto</span>
           {foto ? <img src={foto} alt="Prévia da foto do produto" className="mb-3 h-24 w-24 rounded-lg border border-border object-cover" /> : <div className="mb-3 flex h-24 w-24 items-center justify-center rounded-lg bg-background text-muted-foreground"><Package className="h-8 w-8" aria-hidden="true" /></div>}
-          <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-secondary px-4 font-semibold text-secondary-foreground">
-            <ImagePlus className="h-5 w-5" aria-hidden="true" /> {foto ? "Trocar foto" : "Adicionar foto"}
-            <input type="file" accept="image/*" className="sr-only" onChange={async (e) => { const campo = e.currentTarget; const arquivo = campo.files?.[0]; if (!arquivo) return; try { setFoto(await prepararFotoProduto(arquivo)); setErroFotoNova(""); } catch (erro) { setErroFotoNova(erro instanceof Error ? erro.message : "Não foi possível carregar a foto."); } campo.value = ""; }} />
-          </label>
+          <div className="flex flex-wrap gap-2">
+            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 font-semibold text-primary-foreground">
+              <ImagePlus className="h-5 w-5" aria-hidden="true" /> Tirar foto
+              <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={async (e) => { const campo = e.currentTarget; const arquivo = campo.files?.[0]; if (!arquivo) return; try { setFoto(await prepararFotoProduto(arquivo)); setErroFotoNova(""); } catch (erro) { setErroFotoNova(erro instanceof Error ? erro.message : "Não foi possível carregar a foto."); } campo.value = ""; }} />
+            </label>
+            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-secondary px-4 font-semibold text-secondary-foreground">
+              <ImagePlus className="h-5 w-5" aria-hidden="true" /> Escolher do dispositivo
+              <input type="file" accept="image/*" className="sr-only" onChange={async (e) => { const campo = e.currentTarget; const arquivo = campo.files?.[0]; if (!arquivo) return; try { setFoto(await prepararFotoProduto(arquivo)); setErroFotoNova(""); } catch (erro) { setErroFotoNova(erro instanceof Error ? erro.message : "Não foi possível carregar a foto."); } campo.value = ""; }} />
+            </label>
+          </div>
           {foto && <button type="button" onClick={() => setFoto("")} className="ml-2 min-h-11 rounded-lg px-3 font-semibold text-destructive">Remover foto</button>}
           {erroFotoNova && <p role="alert" className="mt-2 text-sm font-semibold text-destructive">{erroFotoNova}</p>}
           <p className="mt-2 text-xs text-muted-foreground">Escolha uma imagem do celular ou computador.</p>
