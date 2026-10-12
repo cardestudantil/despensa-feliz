@@ -16,6 +16,7 @@ import {
   CATEGORIAS,
   carregarItens,
   carregarPrioridades,
+  calcularPrioridadeEstoque,
   precisaComprar,
   rotuloUnidade,
   salvarItens,
@@ -274,11 +275,11 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
 
   const alterarQuantidade = (id: string, delta: number) => {
     setItens((atual) =>
-      atual.map((item) =>
-        item.id === id
-          ? { ...item, quantidade: Math.max(0, item.quantidade + delta) }
-          : item,
-      ),
+      atual.map((item) => {
+        if (item.id !== id) return item;
+        const quantidade = Math.max(0, item.quantidade + delta);
+        return { ...item, quantidade, prioridade: calcularPrioridadeEstoque({ quantidade, minimo: item.minimo }) };
+      }),
     );
   };
 
@@ -316,7 +317,9 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
   const editarItem = (id: string, nome: string, minimo: number, unidade: Unidade, dataCompra: string) => {
     setItens((atual) =>
       atual.map((item) =>
-        item.id === id ? { ...item, nome, minimo, unidade, dataCompra } : item,
+        item.id === id
+          ? { ...item, nome, minimo, unidade, dataCompra, prioridade: calcularPrioridadeEstoque({ quantidade: item.quantidade, minimo }) }
+          : item,
       ),
     );
   };
@@ -338,7 +341,7 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
         quantidade: 0,
         minimo,
         unidade,
-        prioridade,
+        prioridade: calcularPrioridadeEstoque({ quantidade: 0, minimo }),
         dataCompra,
       },
     ]);
@@ -480,7 +483,11 @@ export function PaginaDespensa({ usuarioId, email }: { usuarioId?: string; email
             onDefinirPrioridade={definirPrioridade}
           />
         ) : (
-          <ListaCompras itens={listaCompras} onMarcarComprado={(id, quantidade) => setItens((atual) => atual.map((item) => item.id === id ? { ...item, quantidade: item.quantidade + quantidade } : item))} />
+          <ListaCompras itens={listaCompras} onMarcarComprado={(id, quantidade) => setItens((atual) => atual.map((item) => {
+            if (item.id !== id) return item;
+            const novaQuantidade = item.quantidade + quantidade;
+            return { ...item, quantidade: novaQuantidade, prioridade: calcularPrioridadeEstoque({ quantidade: novaQuantidade, minimo: item.minimo }) };
+          }))} />
         )}
       </main>
     </div>
