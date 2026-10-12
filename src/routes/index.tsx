@@ -1004,6 +1004,8 @@ function FormularioNovoItem({
   const [temPrioridade, setTemPrioridade] = useState(false);
   const [prioridadeNova, setPrioridadeNova] = useState<Prioridade>("normal");
   const [dataCompra, setDataCompra] = useState("");
+  const [foto, setFoto] = useState("");
+  const [erroFotoNova, setErroFotoNova] = useState("");
   const [mensagem, setMensagem] = useState("");
 
   const enviar = (e: React.FormEvent) => {
@@ -1014,10 +1016,12 @@ function FormularioNovoItem({
       setMensagem("Escreva o nome do produto.");
       return;
     }
-    onAdicionar(nomeLimpo, categoria, minimoNum, unidade, temPrioridade ? prioridadeNova : "nenhuma", dataCompra);
+    onAdicionar(nomeLimpo, categoria, minimoNum, unidade, temPrioridade ? prioridadeNova : "nenhuma", dataCompra, foto || undefined);
     setNome("");
     setMinimo("1");
     setDataCompra("");
+    setFoto("");
+    setErroFotoNova("");
     setMensagem(`"${nomeLimpo}" foi adicionado à despensa!`);
   };
 
@@ -1050,6 +1054,18 @@ function FormularioNovoItem({
             placeholder="Ex: Arroz"
             className="min-h-12 w-full rounded-lg border border-input bg-background px-4 text-undefined text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
+        </div>
+
+        <div className="rounded-lg border border-border p-3">
+          <span className="mb-2 block font-semibold text-foreground">Foto do produto</span>
+          {foto ? <img src={foto} alt="Prévia da foto do produto" className="mb-3 h-24 w-24 rounded-lg border border-border object-cover" /> : <div className="mb-3 flex h-24 w-24 items-center justify-center rounded-lg bg-background text-muted-foreground"><Package className="h-8 w-8" aria-hidden="true" /></div>}
+          <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-secondary px-4 font-semibold text-secondary-foreground">
+            <ImagePlus className="h-5 w-5" aria-hidden="true" /> {foto ? "Trocar foto" : "Adicionar foto"}
+            <input type="file" accept="image/*" className="sr-only" onChange={async (e) => { const arquivo = e.target.files?.[0]; if (!arquivo) return; try { setFoto(await prepararFotoProduto(arquivo)); setErroFotoNova(""); } catch (erro) { setErroFotoNova(erro instanceof Error ? erro.message : "Não foi possível carregar a foto."); } e.currentTarget.value = ""; }} />
+          </label>
+          {foto && <button type="button" onClick={() => setFoto("")} className="ml-2 min-h-11 rounded-lg px-3 font-semibold text-destructive">Remover foto</button>}
+          {erroFotoNova && <p role="alert" className="mt-2 text-sm font-semibold text-destructive">{erroFotoNova}</p>}
+          <p className="mt-2 text-xs text-muted-foreground">Escolha uma imagem do celular ou computador.</p>
         </div>
 
         <div>
@@ -1248,9 +1264,10 @@ function ItemCompra({
 
   return (
     <li className="rounded-xl border border-border bg-card p-4">
-      <h3 className="text-[150%] font-bold text-card-foreground">
-        {item.nome}
-      </h3>
+      <div className="mb-3 flex items-center gap-3">
+        {item.foto ? <img src={item.foto} alt={`Foto de ${item.nome}`} className="h-16 w-16 shrink-0 rounded-lg border border-border object-cover" /> : <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-background text-muted-foreground"><Package className="h-7 w-7" aria-hidden="true" /></div>}
+        <h3 className="text-[150%] font-bold text-card-foreground">{item.nome}</h3>
+      </div>
       <p className="mt-2 text-lg font-extrabold text-foreground">
         Para repor até o mínimo: {item.quantidade >= item.minimo ? "NO MÍNIMO" : `${Math.max(0, item.minimo - item.quantidade)} ${rotuloUnidade(item.unidade)}`}
       </p>
