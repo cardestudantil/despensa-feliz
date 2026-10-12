@@ -53,7 +53,7 @@ export const Route = createFileRoute("/")({
 
 type Aba = "despensa" | "compras";
 
-const BANNER_PADRAO = "https://i.imgur.com/ihOcMO0.jpeg";
+const BANNER_PADRAO = "https://i.imgur.com/0o29LHc.jpeg";
 
 function AppComLogin() {
   const [sessao, setSessao] = useState<{ id: string; email: string } | null | undefined>(undefined);
