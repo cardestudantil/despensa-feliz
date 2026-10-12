@@ -80,6 +80,18 @@ function PaginaDespensa() {
     setCarregado(true);
   }, []);
 
+  const atualizarDataGeral = (campo: "dataConferencia" | "dataUltimaCompra", valor: string) => {
+    const novasDatas = {
+      dataConferencia: campo === "dataConferencia" ? valor : dataConferencia,
+      dataUltimaCompra: campo === "dataUltimaCompra" ? valor : dataUltimaCompra,
+    };
+    if (campo === "dataConferencia") setDataConferencia(valor);
+    else setDataUltimaCompra(valor);
+    try {
+      window.localStorage.setItem("despensa-datas-gerais-v1", JSON.stringify(novasDatas));
+    } catch { /* mantém a alteração na tela se o armazenamento estiver indisponível */ }
+  };
+
   useEffect(() => {
     if (!datasCarregadas) return;
     try {
@@ -229,11 +241,11 @@ function PaginaDespensa() {
         <div className="mx-auto grid max-w-3xl grid-cols-1 gap-3 px-4 pb-4 sm:grid-cols-2">
           <div className="rounded-lg border border-border bg-background p-3">
             <label htmlFor="data-conferencia-geral" className="mb-1 block text-sm font-semibold text-foreground">Data de conferência do estoque</label>
-            <input id="data-conferencia-geral" type="date" value={dataConferencia} onChange={(e) => setDataConferencia(e.target.value)} className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            <input id="data-conferencia-geral" type="date" value={dataConferencia} onChange={(e) => atualizarDataGeral("dataConferencia", e.target.value)} className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
           <div className="rounded-lg border border-border bg-background p-3">
             <label htmlFor="data-ultima-compra-geral" className="mb-1 block text-sm font-semibold text-foreground">Data da última compra</label>
-            <input id="data-ultima-compra-geral" type="date" value={dataUltimaCompra} onChange={(e) => setDataUltimaCompra(e.target.value)} className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            <input id="data-ultima-compra-geral" type="date" value={dataUltimaCompra} onChange={(e) => atualizarDataGeral("dataUltimaCompra", e.target.value) className="min-h-11 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
         </div>
       </header>
